@@ -96,33 +96,38 @@ verifyEmpty(Board, X/Y) :-
     nth0(X, Line, empty).
 
 
-entryMove(Board, Player, Px/Py, Dir, Conquer) :-
+entryMove(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY) :-
     verifyPlayerCell(Board, Player, Px/Py),
-    move(Board, Player, Px/Py, Dir, Conquer).
+    move(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY).
 
 /** Non capturing move */
-move(Board, _Player, Px/Py, Dir, false) :-
+move(Board, _Player, Px/Py, Dir, false, TargetX/TargetY) :-
     getDir(Dir, DirX/DirY),
     NewX is Px + DirX,
     NewY is Py + DirY,
     verifyEmpty(Board, NewX/NewY),
-    distInc(Board, Px/Py, NewX/NewY).
+    distInc(Board, Px/Py, NewX/NewY),
+    TargetX is NewX,
+    TargetY is NewY.
 
 /** Capturing move */
-move(Board, Player, Px/Py, Dir, true) :- 
-    move(Board, Player, Px/Py, Dir, true, Px/Py).
+move(Board, Player, Px/Py, Dir, true, TargetX/TargetY) :- 
+    move(Board, Player, Px/Py, Dir, true, Px/Py, TargetX/TargetY).
 
-move(Board, Player, Px/Py, Dir, true, PrevX/PrevY) :-
+move(Board, Player, Px/Py, Dir, true, PrevX/PrevY, TargetX/TargetY) :-
     getDir(Dir, DirX/DirY),
     NewX is PrevX + DirX,
     NewY is PrevY + DirY,
-    moveConquer(Board, Player, Dir, Px/Py, NewX/NewY).
+    moveConquer(Board, Player, Dir, Px/Py, NewX/NewY, TargetX/TargetY).
 
-moveConquer(Board, Player, _Dir, Px/Py, NewX/NewY) :-
+moveConquer(Board, Player, _Dir, Px/Py, NewX/NewY, NewX/NewY) :-
     opposite(Player, Enemy),
     verifyPlayerCell(Board, Enemy, NewX/NewY),
     \+ distInc(Board, Px/Py, NewX/NewY).
 
-moveConquer(Board, Player, Dir, Px/Py, NewX/NewY) :-
+moveConquer(Board, Player, Dir, Px/Py, NewX/NewY, TargetX/TargetY) :-
     verifyEmpty(Board, NewX/NewY),
-    move(Board, Player, Px/Py, Dir, true, NewX/NewY).
+    move(Board, Player, Px/Py, Dir, true, NewX/NewY, TargetX/TargetY).
+
+% applyMove(Board/P1/P2, Px/Py, Dir, Conquer, NewBoard/NewP1/NewP2) :-
+%     entryMove(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY),
