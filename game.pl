@@ -88,6 +88,11 @@ verifyEmpty(Board, X/Y) :-
 %     NewX is 
 
 
+
+entryMove(Board, Player, Px/Py, Dir, Conquer) :-
+    verifyPlayerCell(Board, Player, Px/Py),
+    move(Board, Player, Px/Py, Dir, Conquer).
+
 /** Non capturing move */
 move(Board, _Player, Px/Py, Dir, false) :-
     getDir(Dir, DirX/DirY),
