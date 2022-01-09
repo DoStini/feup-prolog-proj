@@ -3,8 +3,24 @@
 opposite(red,  blue).
 opposite(blue, red).
 
+color(0, none).
 color(1, blue).
 color(2, red).
+
+/*
+ X,Y | X,Y
+ 0,0 | 1,0
+ 0,1 | 1,1
+*/
+
+getDir(up, 0/(-1)).
+getDir(up_right, 1/(-1)).
+getDir(right, 1/0).
+getDir(down_right, 1/1).
+getDir(down, 0/1).
+getDir(down_left, (-1)/1).
+getDir(left, (-1)/0).
+getDir(up_left, (-1)/(-1)).
 
 generateLine(Size, Start, NewLine) :- generateLine(Size, Start, NewLine, 0, []).
 
@@ -48,20 +64,37 @@ distInc(Board, CurrX/CurrY, Tx/Ty) :-
     distSqr(Tx/Ty, Cx/Cy, Target),
     Target > Current.
 
+checkBounds(Board, X/Y) :-
+    length(Board, L),
+    X < L,
+    Y < L,
+    X >= 0,
+    Y >= 0 .
+
 verifyPlayerCell(Board, Player, X/Y) :-
+    checkBounds(Board, X/Y),
     nth0(Y, Board, Line),
     nth0(X, Line, Cell),
     Cell is Player.
 
-test(Size):-
-    generateBoard(Size, Board),
-    verifyPlayerCell(Board, 1, 2/2).
+verifyEmpty(Board, X/Y) :-
+    checkBounds(Board, X/Y),
+    nth0(Y, Board, Line),
+    nth0(X, Line, empty).
+
+% isHole(Board, X/Y) :- isHole(Board, X/Y, 0/0).
+% isHole(Board, X/Y, X/Y) :-
+%     checkBounds(Board, X/Y).
+% isHole(Board, X/Y, PrevX/PrevY) :-
+%     NewX is 
 
 
-test2(Size):-
-    generateBoard(Size, Board),
-    verifyPlayerCell(Board, 1, 2/2).
+/** Non capturing move */
+move(Board, Px/Py, Dir, false) :-
+    getDir(Dir, DirX/DirY),
+    NewX is Px + DirX,
+    NewY is Py + DirY,
+    verifyEmpty(Board, NewX/NewY),
+    distInc(Board, Px/Py, NewX/NewY).
 
 
-% move(Board, Px/Py, Dir/Capt) :-
-    
