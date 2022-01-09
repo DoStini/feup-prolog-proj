@@ -74,8 +74,7 @@ checkBounds(Board, X/Y) :-
 verifyPlayerCell(Board, Player, X/Y) :-
     checkBounds(Board, X/Y),
     nth0(Y, Board, Line),
-    nth0(X, Line, Cell),
-    Cell is Player.
+    nth0(X, Line, Player).
 
 verifyEmpty(Board, X/Y) :-
     checkBounds(Board, X/Y),
@@ -90,11 +89,28 @@ verifyEmpty(Board, X/Y) :-
 
 
 /** Non capturing move */
-move(Board, Px/Py, Dir, false) :-
+move(Board, _Player, Px/Py, Dir, false) :-
     getDir(Dir, DirX/DirY),
     NewX is Px + DirX,
     NewY is Py + DirY,
     verifyEmpty(Board, NewX/NewY),
     distInc(Board, Px/Py, NewX/NewY).
 
+/** Capturing move */
+move(Board, Player, Px/Py, Dir, true) :- 
+    move(Board, Player, Px/Py, Dir, true, Px/Py).
 
+move(Board, Player, Px/Py, Dir, true, PrevX/PrevY) :-
+    getDir(Dir, DirX/DirY),
+    NewX is PrevX + DirX,
+    NewY is PrevY + DirY,
+    moveConquer(Board, Player, Dir, Px/Py, NewX/NewY).
+
+moveConquer(Board, Player, Dir, Px/Py, NewX/NewY) :-
+    opposite(Player, Enemy),
+    verifyPlayerCell(Board, Enemy, NewX/NewY),
+    \+ distInc(Board, Px/Py, NewX/NewY).
+
+moveConquer(Board, Player, Dir, Px/Py, NewX/NewY) :-
+    verifyEmpty(Board, NewX/NewY),
+    move(Board, Player, Px/Py, Dir, true, NewX/NewY).
