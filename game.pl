@@ -24,7 +24,7 @@ getDir(up_left, (-1)/(-1)).
 
 generateLine(Size, Start, NewLine) :- generateLine(Size, Start, NewLine, 0, []).
 
-generateLine(Size, Start, NewLine, Size, NewLine) :- !.
+generateLine(Size, _Start, NewLine, Size, NewLine) :- !.
 generateLine(Size, Start, NewLine, Acc, Prev) :-
     Acc < Size,
     ColorIdx is mod(mod(Acc, 2) + Start, 2) + 1,
@@ -65,11 +65,25 @@ distInc(Board, CurrX/CurrY, Tx/Ty) :-
     Target > Current.
 
 checkBounds(Board, X/Y) :-
+    checkBounds(Board, X/Y,X/0).
+
+checkBounds(Board, X/Y,X/Y) :-
+    nth0(Y, Board, Line),
+    checkLine(Line, X, 0).
+
+checkBounds(Board, X/Y, X/AccY) :-
     length(Board, L),
-    X < L,
-    Y < L,
-    X >= 0,
-    Y >= 0 .
+    NextY is AccY + 1,
+    NextY < L,
+    checkBounds(Board, X/Y, X/NextY).
+
+checkLine(_Line, X, X).
+
+checkLine(Line, X, AccX) :-
+    length(Line, L),
+    NextX is AccX + 1,
+    NextX < L,
+    checkLine(Line, X, NextX).
 
 verifyPlayerCell(Board, Player, X/Y) :-
     checkBounds(Board, X/Y),
@@ -80,13 +94,6 @@ verifyEmpty(Board, X/Y) :-
     checkBounds(Board, X/Y),
     nth0(Y, Board, Line),
     nth0(X, Line, empty).
-
-% isHole(Board, X/Y) :- isHole(Board, X/Y, 0/0).
-% isHole(Board, X/Y, X/Y) :-
-%     checkBounds(Board, X/Y).
-% isHole(Board, X/Y, PrevX/PrevY) :-
-%     NewX is 
-
 
 
 entryMove(Board, Player, Px/Py, Dir, Conquer) :-
@@ -111,7 +118,7 @@ move(Board, Player, Px/Py, Dir, true, PrevX/PrevY) :-
     NewY is PrevY + DirY,
     moveConquer(Board, Player, Dir, Px/Py, NewX/NewY).
 
-moveConquer(Board, Player, Dir, Px/Py, NewX/NewY) :-
+moveConquer(Board, Player, _Dir, Px/Py, NewX/NewY) :-
     opposite(Player, Enemy),
     verifyPlayerCell(Board, Enemy, NewX/NewY),
     \+ distInc(Board, Px/Py, NewX/NewY).
