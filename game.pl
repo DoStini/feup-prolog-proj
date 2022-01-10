@@ -196,7 +196,7 @@ colors_board(Board, Blue, Red) :-
 
 colors_board([], Blue, Red, Blue, Red) :- !.
 colors_board([Line|Board], Blue, Red, BSum, RSum) :-
-    colors_line(Line, B, R),
+    colors_line(Line, B, R, 0, 0),
     BSum1 is BSum + B,
     RSum1 is RSum + R,
     colors_board(Board, Blue, Red, BSum1, RSum1).
@@ -208,10 +208,9 @@ colors_board([Line|Board], Blue, Red, BSum, RSum) :-
 %  @param Line The game board row.
 %  @param Blue The number of blue pieces.
 %  @param Red The number of red pieces.
+%  @param BSum The accumulative number of blue pieces.
+%  @param BSum The accumulative number of red pieces.
 %
-colors_line(Line, Blue, Red) :-
-    colors_line(Line, Blue, Red, 0, 0), !.
-
 colors_line([], Blue, Red, Blue, Red) :- !.
 colors_line([blue|Line], Blue, Red, BSum, RSum) :-
     BSum1 is BSum + 1,
@@ -221,6 +220,13 @@ colors_line([red|Line], Blue, Red, BSum, RSum) :-
     colors_line(Line, Blue, Red, BSum, RSum1).
 colors_line([_|Line], Blue, Red, BSum, RSum) :-
     colors_line(Line, Blue, Red, BSum, RSum).
+
+%% valid_moves(+Board/+Player, -ListOfMoves) is det.
+%  
+%  Gets a list of valid moves for a given game state.
+%
+valid_moves(Board/Player, ListOfMoves) :-
+    findall(Px/Py/Dir/Conquer, entryMove(Board, Player, Px/Py, Dir, Conquer, _), ListOfMoves).
 
 %% entryMove(+Board, ?Player, ?Px/?Py, )
 entryMove(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY) :-
