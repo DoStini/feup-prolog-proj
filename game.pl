@@ -12,6 +12,21 @@ getDir(down_left, (-1)/1).
 getDir(left, (-1)/0).
 getDir(up_left, (-1)/(-1)).
 
+testMultiple(T, Goal, Times) :- testMultiple(T, Goal, 0, 0, Times).
+
+testMultiple(T, _G, Acc, Times, Times) :- T is Acc div Times, !.
+testMultiple(T, Goal, Acc, AccTime, Times) :-
+    AccTime < Times,
+    test(T2, Goal),
+    T1 is Acc + T2,
+    Acc1 is AccTime +  1,
+    testMultiple(T, Goal, T1, Acc1, Times).
+
+testMultipleBounds(T, Size, Times) :-
+    generateBoard(Size, B),
+    S is Size - 1,
+    testMultiple(T, checkBounds(B, S/S), Times).
+
 test(T, Goal) :-
     statistics(walltime,[Start,_]),
     Goal,
@@ -111,20 +126,15 @@ distInc(Board, CurrX/CurrY, Tx/Ty) :-
 checkBounds(Board, X/Y) :-
     checkBounds(Board, X/Y,X/0).
 
-checkBounds(Board, X/Y,X/Y) :-
-    nth0(Y, Board, Line),
+checkBounds([Line|_], X/Y,X/Y) :-
     checkLine(Line, X, 0).
-checkBounds(Board, X/Y, X/AccY) :-
-    length(Board, L),
+checkBounds([_|Board], X/Y, X/AccY) :-
     NextY is AccY + 1,
-    NextY < L,
     checkBounds(Board, X/Y, X/NextY).
 
-checkLine(_Line, X, X).
-checkLine(Line, X, AccX) :-
-    length(Line, L),
+checkLine([_|_], X, X).
+checkLine([_|Line], X, AccX) :-
     NextX is AccX + 1,
-    NextX < L,
     checkLine(Line, X, NextX).
 
 %% verifyPlayerCell(+Board, ?Player, ?X/?Y) is nondet. % 1
