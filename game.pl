@@ -1,4 +1,6 @@
 :- use_module(library(lists)).
+:- [util].
+:- [display].
 
 opposite(red,  blue).
 opposite(blue, red).
@@ -201,5 +203,20 @@ moveConquer(Board, Player, Dir, Px/Py, NewX/NewY, TargetX/TargetY) :-
     verifyEmpty(Board, NewX/NewY),
     move(Board, Player, Px/Py, Dir, true, NewX/NewY, TargetX/TargetY).
 
-% applyMove(Board/P1/P2, Px/Py, Dir, Conquer, NewBoard/NewP1/NewP2) :-
-%     entryMove(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY),
+applyMove(Board, Player, Px/Py, Dir, Conquer, NewBoard) :-
+    entryMove(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY),
+    replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard).
+    % drawBoard(Board),
+    % put_char('\n'),
+    % put_char('\n'),
+    % put_char('\n'),
+    % drawBoard(NewBoard).
+
+replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
+    nth0(Py, Board, CurrentLine),
+    replace(CurrentLine, Px, empty, NewCurrentLine),
+    replace(Board, Py, NewCurrentLine, TempBoard),
+
+    nth0(TargetY, TempBoard, TargetLine),
+    replace(TargetLine, TargetX, Player, NewTargetLine),
+    replace(TempBoard, TargetY, NewTargetLine, NewBoard).
