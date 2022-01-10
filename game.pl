@@ -118,8 +118,7 @@ distInc(Board, CurrX/CurrY, Tx/Ty) :-
 %% checkBounds(+Board, ?X/?Y) is nondet. %1
 %% checkBounds(+Board, +X/+Y) is det.    %2
 %
-%  %1. Gets all positions of the Board given X or Y or neither. Assumes
-%      Board has at least size 1.
+%  %1. Gets all positions of the Board given X or Y or neither.
 %  %2. Checks if the given position is in the board, if so returns true.
 %
 %  @param Board The game board.
@@ -134,7 +133,7 @@ checkBounds([_|Board], X/Y, X/AccY) :-
     NextY is AccY + 1,
     checkBounds(Board, X/Y, X/NextY).
 
-checkLine([_|_], X, X).
+checkLine([_|_], X, X):- !.
 checkLine([_|Line], X, AccX) :-
     NextX is AccX + 1,
     checkLine(Line, X, NextX).
@@ -170,6 +169,62 @@ verifyEmpty(Board, X/Y) :-
     nth0(Y, Board, Line),
     nth0(X, Line, empty).
 
+%% end_game(+Board, -Player) is det.
+%
+%  True if game has ended.
+%
+%  @param Board The game board.
+%  @param Player The color of the player who won
+%
+end_game(Board, Player) :-
+    colors_board(Board, Blue, Red),
+    end_game(Player, Blue, Red).
+
+end_game(Player,_Blue,0) :-
+    Player = blue.
+end_game(Player,0,_Red) :-
+    Player = red.
+
+%% colors_board(+Board, -Blue, -Red) is det.
+%
+%  Gets the number of pieces in the board of each color.
+%
+%  @param Board The game board.
+%  @param Blue The number of blue pieces.
+%  @param Red The number of red pieces.
+%
+colors_board(Board, Blue, Red) :-
+    colors_board(Board, Blue, Red, 0, 0), !.
+
+colors_board([], Blue, Red, Blue, Red) :- !.
+colors_board([Line|Board], Blue, Red, BSum, RSum) :-
+    colors_line(Line, B, R),
+    BSum1 is BSum + B,
+    RSum1 is RSum + R,
+    colors_board(Board, Blue, Red, BSum1, RSum1).
+
+%% colors_line(+Line, -Blue, -Red) is det.
+%
+%  Gets the number of pieces in a board row of each color.
+%
+%  @param Line The game board row.
+%  @param Blue The number of blue pieces.
+%  @param Red The number of red pieces.
+%
+colors_line(Line, Blue, Red) :-
+    colors_line(Line, Blue, Red, 0, 0), !.
+
+colors_line([], Blue, Red, Blue, Red) :- !.
+colors_line([blue|Line], Blue, Red, BSum, RSum) :-
+    BSum1 is BSum + 1,
+    colors_line(Line, Blue, Red, BSum1, RSum).
+colors_line([red|Line], Blue, Red, BSum, RSum) :-
+    RSum1 is RSum + 1,
+    colors_line(Line, Blue, Red, BSum, RSum1).
+colors_line([_|Line], Blue, Red, BSum, RSum) :-
+    colors_line(Line, Blue, Red, BSum, RSum).
+
+%% entryMove(+Board, ?Player, ?Px/?Py, )
 entryMove(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY) :-
     verifyPlayerCell(Board, Player, Px/Py),
     move(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY).
