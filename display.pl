@@ -1,3 +1,5 @@
+cls :- write('\33\[2J').
+
 drawCell(red) :-
     put_char('X').
 
