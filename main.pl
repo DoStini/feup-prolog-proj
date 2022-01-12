@@ -1,3 +1,5 @@
+:- [game].
+
 player('red', red).
 player('blue', blue).
 
@@ -22,13 +24,13 @@ askNumber(Text, Min, Max, Number) :-
     number(X),
     X >= Min,
     X < Max,
-    Number = X.
+    Number = X, !.
 
 askPlayer(Player) :-
     repeat,
     write('Please input initial player: (red/blue) '),
     read(X),
-    player(X, Player).
+    player(X, Player), !.
 
 askConfig(Size, FirstPlayer) :-
     askNumber('Please input Size: ', 0, 1000000, Size),
@@ -38,13 +40,13 @@ askDir(Dir) :-
     repeat,
     write('Please input direction: '),
     read(X),
-    dir(X, Dir).
+    dir(X, Dir), !.
 
 askConquer(Conquer) :-
     repeat,
     write('Conquer? (Y/N) '),
     read(X),
-    conquer(X, Conquer).
+    conquer(X, Conquer), !.
 
 askMove(Size, X, Y, Dir, Conquer) :-
     askNumber('Please input X: ', 0, Size, X),
