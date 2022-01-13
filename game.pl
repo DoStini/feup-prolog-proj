@@ -266,11 +266,6 @@ move_conquer(Board, Player, Dir, Px/Py, NewX/NewY, TargetX/TargetY) :-
 move(Board, Player, Px/Py, Dir, Conquer, NewBoard) :-
     can_move(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY),
     replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard).
-    % drawBoard(Board),
-    % put_char('\n'),
-    % put_char('\n'),
-    % put_char('\n'),
-    % drawBoard(NewBoard).
 
 replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
     nth0(Py, Board, CurrentLine),

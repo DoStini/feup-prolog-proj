@@ -33,7 +33,7 @@ askPlayer(Player) :-
     player(X, Player), !.
 
 askConfig(Size, FirstPlayer) :-
-    askNumber('Please input Size: ', 0, 1000000, Size),
+    askNumber('Please input Size: ', 1, 1000000, Size),
     askPlayer(FirstPlayer).
 
 askDir(Dir) :-
@@ -55,10 +55,14 @@ askMove(Size, X, Y, Dir, Conquer) :-
     askConquer(Conquer).
 
 gameCycle(Board, Size, Player) :-
-    repeat,
-    drawBoard(Board),
-    askMove(Size, X, Y, Dir, Conquer),
-    move(Board, Player, X/Y, Dir, Conquer, NewBoard),
+    (
+        repeat,
+        nl,
+        format("~s~a~s", ["Player ", Player, " it is your turn to play!\n"]),
+        drawBoard(Board),
+        askMove(Size, X, Y, Dir, Conquer),
+        (move(Board, Player, X/Y, Dir, Conquer, NewBoard) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
+    ),
     opposite(Player, Next),
     gameCycle(NewBoard, Size, Next).
 
