@@ -57,16 +57,14 @@ askMove(Size, X, Y, Dir, Conquer) :-
 gameCycle(Board, Size, Player) :-
     (
         repeat,
-        nl,
-        format("~s~a~s", ["Player ", Player, " it is your turn to play!\n"]),
-        drawBoard(Board),
+        display_game(Board/Player),
         askMove(Size, X, Y, Dir, Conquer),
         (move(Board, Player, X/Y, Dir, Conquer, NewBoard) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
     ),
     opposite(Player, Next),
     gameCycle(NewBoard, Size, Next).
 
-playGame :-
+play :-
     askConfig(Size, FirstPlayer),
     generateBoard(Size, Board),
     gameCycle(Board, Size, FirstPlayer).

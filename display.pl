@@ -1,14 +1,12 @@
 cls :- write('\33\[2J').
 
-drawCell(red) :-
-    put_char('X').
+playerChar(red, 'X').
+playerChar(blue, 'O').
+playerChar(empty, ' ').
 
-drawCell(blue) :-
-    put_char('O').
-
-drawCell(empty) :-
-    put_char(' ').
-
+drawCell(Player) :-
+    playerChar(Player, Char),
+    put_char(Char).
 
 drawLine([]) :-
     put_char('\n').
@@ -24,3 +22,12 @@ drawBoard([]).
 drawBoard([Line | RemBoard]) :-
     drawLine(Line),
     drawBoard(RemBoard).
+
+display_game(Board/Player) :-
+    nl,
+    playerChar(Player, Char),
+    format("~s", ["####################################################\n"]),
+    format("~s~a~s~a~s", ["Player ", Player, " (", Char  ,"), it is your turn to play!\n"]),
+    drawBoard(Board),
+    format("~s", ["####################################################\n"]),
+    nl.
