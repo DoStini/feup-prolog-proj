@@ -150,7 +150,7 @@ checkLine([_|Line], X, AccX) :-
 %  @param Player The player color.
 %  @param X/Y The position in the board.
 %
-verifyPlayerCell(Board, Player, X/Y) :-
+verifyPlayerCell(Board/Player, X/Y) :-
     checkBounds(Board, X/Y),
     nth0(Y, Board, Line),
     nth0(X, Line, Player).
@@ -176,7 +176,7 @@ verifyEmpty(Board, X/Y) :-
 %  @param Board The game board.
 %  @param Player The color of the player who won
 %
-end_game(Board, Player) :-
+end_game(Board/_, Player) :-
     colors_board(Board, Blue, Red),
     end_game(Player, Blue, Red).
 
@@ -228,15 +228,15 @@ colors_line([_|Line], Blue, Red, BSum, RSum) :-
 %  Gets a list of valid moves for a given game state.
 %
 valid_moves(Board/Player, ListOfMoves) :-
-    findall(Px/Py/Dir/Conquer, can_move(Board, Player, Px/Py, Dir, Conquer, _), ListOfMoves).
+    findall(Px/Py/Dir/Conquer, can_move(Board/Player, Px/Py/Dir/Conquer, _), ListOfMoves).
 
 %% can_move(+Board, ?Player, ?Px/?Py, )
-can_move(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY) :-
-    verifyPlayerCell(Board, Player, Px/Py),
-    move_inner(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY).
+can_move(Board/Player, Px/Py/Dir/Conquer, TargetX/TargetY) :-
+    verifyPlayerCell(Board/Player, Px/Py),
+    move_inner(Board/Player, Px/Py/Dir/Conquer, TargetX/TargetY).
 
 /** Non capturing move */
-move_inner(Board, _Player, Px/Py, Dir, false, TargetX/TargetY) :-
+move_inner(Board/_Player, Px/Py/Dir/false, TargetX/TargetY) :-
     getDir(Dir, DirX/DirY),
     NewX is Px + DirX,
     NewY is Py + DirY,
@@ -246,26 +246,28 @@ move_inner(Board, _Player, Px/Py, Dir, false, TargetX/TargetY) :-
     TargetY is NewY.
 
 /** Capturing move */
-move_inner(Board, Player, Px/Py, Dir, true, TargetX/TargetY) :- 
-    move_inner(Board, Player, Px/Py, Dir, true, Px/Py, TargetX/TargetY).
+move_inner(Board/Player, Px/Py/Dir/true, TargetX/TargetY) :- 
+    move_inner(Board/Player, Px/Py/Dir/true, Px/Py, TargetX/TargetY).
 
-move_inner(Board, Player, Px/Py, Dir, true, PrevX/PrevY, TargetX/TargetY) :-
+move_inner(Board/Player, Px/Py/Dir/true, PrevX/PrevY, TargetX/TargetY) :-
     getDir(Dir, DirX/DirY),
     NewX is PrevX + DirX,
     NewY is PrevY + DirY,
-    move_conquer(Board, Player, Dir, Px/Py, NewX/NewY, TargetX/TargetY).
+    move_conquer(Board/Player, Px/Py/Dir, NewX/NewY, TargetX/TargetY).
 
-move_conquer(Board, Player, _Dir, Px/Py, NewX/NewY, NewX/NewY) :-
+move_conquer(Board/Player, Px/Py/_Dir, NewX/NewY, NewX/NewY) :-
     opposite(Player, Enemy),
-    verifyPlayerCell(Board, Enemy, NewX/NewY),
+    verifyPlayerCell(Board/Enemy, NewX/NewY),
     \+ distInc(Board, Px/Py, NewX/NewY).
-move_conquer(Board, Player, Dir, Px/Py, NewX/NewY, TargetX/TargetY) :-
-    verifyEmpty(Board, NewX/NewY),
-    move_inner(Board, Player, Px/Py, Dir, true, NewX/NewY, TargetX/TargetY).
 
-move(Board, Player, Px/Py, Dir, Conquer, NewBoard) :-
-    can_move(Board, Player, Px/Py, Dir, Conquer, TargetX/TargetY),
-    replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard).
+move_conquer(Board/Player, Px/Py/Dir, NewX/NewY, TargetX/TargetY) :-
+    verifyEmpty(Board, NewX/NewY),
+    move_inner(Board/Player, Px/Py/Dir/true, NewX/NewY, TargetX/TargetY).
+
+move(Board/Player, Px/Py/Dir/Conquer, NewBoard/Next) :-
+    can_move(Board/Player, Px/Py/Dir/Conquer, TargetX/TargetY),
+    replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard),
+    opposite(Player, Next).
 
 replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
     nth0(Py, Board, CurrentLine),

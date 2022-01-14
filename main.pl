@@ -54,17 +54,16 @@ askMove(Size, X, Y, Dir, Conquer) :-
     askDir(Dir),
     askConquer(Conquer).
 
-gameCycle(Board, Size, Player) :-
+gameCycle(Board/Player, Size) :-
     (
         repeat,
         display_game(Board/Player),
         askMove(Size, X, Y, Dir, Conquer),
-        (move(Board, Player, X/Y, Dir, Conquer, NewBoard) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
+        (move(Board/Player, X/Y/Dir/Conquer, NewBoard/Next) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
     ),
-    opposite(Player, Next),
-    gameCycle(NewBoard, Size, Next).
+    gameCycle(NewBoard/Next, Size).
 
 play :-
     askConfig(Size, FirstPlayer),
     generateBoard(Size, Board),
-    gameCycle(Board, Size, FirstPlayer).
+    gameCycle(Board/FirstPlayer, Size).
