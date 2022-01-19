@@ -176,14 +176,14 @@ verifyEmpty(Board, X/Y) :-
 %  @param Board The game board.
 %  @param Player The color of the player who won
 %
-end_game(Board/_, Player) :-
+end_game(Board, Player) :-
     colors_board(Board, Blue, Red),
     end_game(Player, Blue, Red).
 
 end_game(Player,_Blue,0) :-
-    Player = blue.
+    Player = blue, !.
 end_game(Player,0,_Red) :-
-    Player = red.
+    Player = red, !.
 
 %% colors_board(+Board, -Blue, -Red) is det.
 %

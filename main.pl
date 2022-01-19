@@ -54,6 +54,10 @@ askMove(Size, X, Y, Dir, Conquer) :-
     askDir(Dir),
     askConquer(Conquer).
 
+gameCycle(Board/Player, _Size) :-
+    end_game(Board, PlayerYes), !,
+    format("~s~a~s", ["Winner is ", PlayerYes, "!\n"]).
+
 gameCycle(Board/Player, Size) :-
     (
         repeat,
