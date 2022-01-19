@@ -16,6 +16,10 @@ drawLine([Elem | Line]) :-
     put_char(' '),
     drawLine(Line).
 
+drawGame(Board) :-
+    format("~s", ["\n####################################################\n"]),
+    drawBoard(Board),
+    format("~s", ["####################################################\n"]).
 
 drawBoard([]).
 
@@ -26,8 +30,6 @@ drawBoard([Line | RemBoard]) :-
 display_game(Board/Player) :-
     nl,
     playerChar(Player, Char),
-    format("~s", ["####################################################\n"]),
+    drawGame(Board),
     format("~s~a~s~a~s", ["Player ", Player, " (", Char  ,"), it is your turn to play!\n"]),
-    drawBoard(Board),
-    format("~s", ["####################################################\n"]),
     nl.
