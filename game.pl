@@ -1,6 +1,5 @@
 :- use_module(library(lists)).
 :- [util].
-:- [display].
 
 opposite(red,  blue).
 opposite(blue, red).
@@ -202,6 +201,23 @@ colors_board([Line|Board], Blue, Red, BSum, RSum) :-
     BSum1 is BSum + B,
     RSum1 is RSum + R,
     colors_board(Board, Blue, Red, BSum1, RSum1).
+
+
+%% value(+Board, +Player, -Value) is det.
+%
+%  Calculates the negated advantage a player has.
+%
+%  @param Board The game board.
+%  @param Player The one playing
+%  @param Value The negated advantage
+%
+value(Board, red, Value) :-
+    colors_board(Board, Blue, Red),
+    Value is Blue - Red.
+
+value(Board, blue, Value) :-
+    colors_board(Board, Blue, Red),
+    Value is Red - Blue.
 
 %% colors_line(+Line, -Blue, -Red) is det.
 %

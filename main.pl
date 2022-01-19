@@ -1,4 +1,6 @@
 :- [game].
+:- [display].
+:- [ai].
 
 player('red', red).
 player('blue', blue).
