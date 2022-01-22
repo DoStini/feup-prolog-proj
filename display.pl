@@ -48,11 +48,11 @@ drawGridInner([_|Line]) :-
     drawGridInner(Line).
 
 drawGame(Board) :-
-    format("~s", ["\n####################################################\n"]),
+    format("~s", ["\n#####################################################\n"]),
     drawNumbers(Board),
     drawBoard(Board),
     drawNumbers(Board),
-    format("~s", ["####################################################\n"]).
+    format("~s", ["#####################################################\n"]).
 
 drawBoard(Board) :-
     drawGrid(Board),
@@ -76,3 +76,11 @@ display_game(Board/Player) :-
     drawGame(Board),
     format("~s~a~s~a~s", ["Player ", Player, " (", Char  ,"), it is your turn to play!\n"]),
     nl.
+
+drawMenu :-
+    format("~s", ["\n#####################################################\n"]),
+    format("~s", [  "                   WELCOME TO ZOLA                   \n"]),
+    format("~s", ["\n 1. Play Against a Friend\n"]),
+    format("~s", [" 2. Play Against the Computer\n"]),
+    format("~s", [" 3. Watch Computers Play the Game\n"]),
+    format("~s", ["\n#####################################################\n"]).

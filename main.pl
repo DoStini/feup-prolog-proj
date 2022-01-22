@@ -67,7 +67,20 @@ gameCycle(Board/Player, Size) :-
     ),
     gameCycle(NewBoard/Next, Size).
 
-play :-
+handleOption(1) :-
     askConfig(Size, FirstPlayer),
     generateBoard(Size, Board),
     gameCycle(Board/FirstPlayer, Size).
+handleOption(2).
+handleOption(3).
+handleOption(_) :- fail.
+
+play :-
+    drawMenu,
+    repeat,
+    format("~s", ["Please choose an option: "]),
+    read(Option),
+    handleOption(Option), !.
+    % askConfig(Size, FirstPlayer),
+    % generateBoard(Size, Board),
+    % gameCycle(Board/FirstPlayer, Size).
