@@ -59,21 +59,22 @@ gameCycle(Board/_, _Size) :-
     drawGame(Board),
     format("~s~a~s", ["\nWinner is ", PlayerYes, "!\n\n"]).
 gameCycle(Board/Player, Size) :-
+    display_game(Board/Player),
     (
         repeat,
-        display_game(Board/Player),
         askMove(Size, X, Y, Dir, Conquer),
         (move(Board/Player, X/Y/Dir/Conquer, NewBoard/Next) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
     ),
     gameCycle(NewBoard/Next, Size).
 
 handleOption(1) :-
-    drawFriendConfig,
+    drawConfig,
     askConfig(Size, FirstPlayer),
     drawEndSection,
     generateBoard(Size, Board),
     gameCycle(Board/FirstPlayer, Size).
 handleOption(2).
+
 handleOption(3).
 handleOption(_) :- fail.
 
