@@ -8,7 +8,7 @@ noMoves(Board/Player) :-
     nl,
     playerChar(Player, Char),
     drawGame(Board),
-    format("~s~a~s~a~s", ["Player ", Player, " (", Char  ,"), has no moves and can't play, turn is skipped!\n"]),
+    format("~s~a~s~a~s", ["\nPlayer ", Player, " (", Char  ,"), has no moves and can't play, turn is skipped!\n"]),
     nl.
 
 drawCell(Player) :-
@@ -81,7 +81,7 @@ display_game(Board/Player) :-
     nl,
     playerChar(Player, Char),
     drawGame(Board),
-    format("~s~a~s~a~s", ["Player ", Player, " (", Char  ,"), it is your turn to play!\n"]),
+    format("~s~a~s~a~s", ["\nPlayer ", Player, " (", Char  ,"), it is your turn to play!\n"]),
     nl.
 
 drawMenu :-

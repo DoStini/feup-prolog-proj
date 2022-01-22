@@ -202,6 +202,9 @@ colors_board([Line|Board], Blue, Red, BSum, RSum) :-
     RSum1 is RSum + R,
     colors_board(Board, Blue, Red, BSum1, RSum1).
 
+safe_div(_, 0, 0) :- !.
+safe_div(Num, Div, Res) :-
+    Res is Num / Div, !.
 
 %% value(+Board, +Player, -Value) is det.
 %
@@ -211,13 +214,39 @@ colors_board([Line|Board], Blue, Red, BSum, RSum) :-
 %  @param Player The one playing
 %  @param Value The negated advantage
 %
-value(Board, red, Value) :-
-    colors_board(Board, Blue, Red),
-    Value is Blue - Red.
+value(Board, Player, Value) :-
+    color_diff(Board, Player, Acc),
+    opposite(Player, Opposite),
+    valid_moves(Board/Player, PlayerMoves),
+    valid_moves(Board/Opposite, OppositeMoves),
+    conquerLength(PlayerMoves, PlayerConquer, PlayerNonConquer),
+    conquerLength(OppositeMoves, OppositeConquer, OppositeNonConquer),
+    TotalPlayer is PlayerNonConquer + PlayerConquer,
+    TotalOpposite is OppositeNonConquer + OppositeConquer,
+    safe_div(TotalPlayer, PlayerConquer, ConquerPoints),
+    safe_div(TotalPlayer, PlayerNonConquer, NonConquerPoints),
+    safe_div(TotalOpposite, OppositeConquer, OppositeConquerPoints),
+    safe_div(TotalOpposite, OppositeNonConquer, OppositeNonConquerPoints),
+    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.5 - OppositeConquerPoints * 1.5 - OppositeNonConquerPoints * 0.9).
 
-value(Board, blue, Value) :-
+conquerLength(Moves, Conquer, NonConquer) :-
+    conquerLength(Moves, Conquer, NonConquer, 0, 0).
+
+conquerLength([], Conquer, NonConquer, Conquer, NonConquer) :- !.
+conquerLength([_/_/_/true|Moves], Conquer, NonConquer, ConquerAcc, NonConquerAcc) :-
+    NewConquer is ConquerAcc + 1,
+    conquerLength(Moves, Conquer, NonConquer, NewConquer, NonConquerAcc).
+conquerLength([_/_/_/false|Moves], Conquer, NonConquer, ConquerAcc, NonConquerAcc) :-
+    NewNonConquer is NonConquerAcc + 1,
+    conquerLength(Moves, Conquer, NonConquer, ConquerAcc, NewNonConquer).
+
+color_diff(Board, red, Value) :-
     colors_board(Board, Blue, Red),
     Value is Red - Blue.
+
+color_diff(Board, blue, Value) :-
+    colors_board(Board, Blue, Red),
+    Value is Blue - Red.
 
 %% colors_line(+Line, -Blue, -Red) is det.
 %

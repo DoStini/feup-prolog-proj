@@ -26,16 +26,6 @@ askNumber(Text, Min, Max, Number) :-
     X < Max,
     Number = X, !.
 
-% askTypePlayers(Type1, Type2) :-
-%     repeat,
-%     write('Please choose player 1: (human/random/smart) '),
-%     read(Type1),
-%     type(Type1), !,
-%     repeat,
-%     write('Please choose player 2: (human/random/smart) '),
-%     read(Type2),
-%     type(Type2), !.
-
 askDifficulty(Type):-
     repeat,
     format("~s", ["Choose the AI difficulty:\n 1. Random\n 2. Smart\n"]),
