@@ -58,7 +58,6 @@ gameCycle(Board/_, _Size) :-
     end_game(Board, PlayerYes), !,
     drawGame(Board),
     format("~s~a~s", ["\nWinner is ", PlayerYes, "!\n\n"]).
-
 gameCycle(Board/Player, Size) :-
     (
         repeat,
