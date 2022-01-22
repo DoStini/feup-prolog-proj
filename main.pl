@@ -68,7 +68,9 @@ gameCycle(Board/Player, Size) :-
     gameCycle(NewBoard/Next, Size).
 
 handleOption(1) :-
+    drawFriendConfig,
     askConfig(Size, FirstPlayer),
+    drawEndSection,
     generateBoard(Size, Board),
     gameCycle(Board/FirstPlayer, Size).
 handleOption(2).

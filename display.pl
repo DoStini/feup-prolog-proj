@@ -84,3 +84,10 @@ drawMenu :-
     format("~s", [" 2. Play Against the Computer\n"]),
     format("~s", [" 3. Watch Computers Play the Game\n"]),
     format("~s", ["\n#####################################################\n"]).
+
+drawFriendConfig :-
+    format("~s", ["\n#####################################################\n"]),
+    format("~s", [  "                    CONFIGURATION                    \n\n"]).
+
+drawEndSection :-
+    format("~s", ["\n#####################################################\n"]).
