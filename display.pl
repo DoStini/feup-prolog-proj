@@ -4,6 +4,13 @@ playerChar(red, 'X').
 playerChar(blue, 'O').
 playerChar(empty, ' ').
 
+noMoves(Board/Player) :-
+    nl,
+    playerChar(Player, Char),
+    drawGame(Board),
+    format("~s~a~s~a~s", ["Player ", Player, " (", Char  ,"), has no moves and can't play, turn is skipped!\n"]),
+    nl.
+
 drawCell(Player) :-
     playerChar(Player, Char),
     put_char(Char).

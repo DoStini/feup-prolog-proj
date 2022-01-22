@@ -7,15 +7,21 @@ gameCycle(Board/_/_/_, _Size) :-
     end_game(Board, Player), !,
     drawGame(Board),
     format("~s~a~s", ["\nWinner is ", Player, "!\n\n"]).
-
-gameCycle(GameState/Player1/Player2, Size) :-
+gameCycle(Board/Player/CurPlayerType/NextPlayerType, Size) :-
+    valid_moves(Board/Player, List),
+    length(List, MoveNo),
+    MoveNo =:= 0, !,
+    noMoves(Board/Player),
+    opposite(Player, NextPlayer),
+    gameCycle(Board/NextPlayer/NextPlayerType/CurPlayerType, Size).
+gameCycle(GameState/CurPlayerType/NextPlayerType, Size) :-
     display_game(GameState),
     (
         repeat,
-        choose_move(GameState, Player1, Move),
+        choose_move(GameState, CurPlayerType, Move),
         (move(GameState, Move, NextState) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
     ),
-    gameCycle(NextState/Player2/Player1, Size).
+    gameCycle(NextState/NextPlayerType/CurPlayerType, Size).
 
 handleOption(1) :-
     drawConfig,
@@ -51,6 +57,3 @@ play :-
     format("~s", ["Please choose an option: "]),
     read(Option),
     handleOption(Option), !.
-    % askConfig(Size, FirstPlayer),
-    % generateBoard(Size, Board),
-    % gameCycle(Board/FirstPlayer, Size).
