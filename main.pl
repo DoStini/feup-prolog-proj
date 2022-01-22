@@ -1,81 +1,48 @@
 :- [game].
+:- [display].
+:- [ai].
+:- [input].
 
-player('red', red).
-player('blue', blue).
-
-dir('up', up).
-dir('up_right', up_right).
-dir('right', right).
-dir('down_right', down_right).
-dir('down', down).
-dir('down_left',down_left).
-dir('left', left).
-dir('up_left', up_left).
-
-conquer('y', true).
-conquer('n', false).
-
-match(X, X).
-
-askNumber(Text, Min, Max, Number) :-
-    repeat,
-    write(Text),
-    read(X),
-    number(X),
-    X >= Min,
-    X < Max,
-    Number = X, !.
-
-askPlayer(Player) :-
-    repeat,
-    write('Please input initial player: (red/blue) '),
-    read(X),
-    player(X, Player), !.
-
-askConfig(Size, FirstPlayer) :-
-    askNumber('Please input Size: ', 1, 1000000, Size),
-    askPlayer(FirstPlayer).
-
-askDir(Dir) :-
-    repeat,
-    write('Please input direction: '),
-    read(X),
-    dir(X, Dir), !.
-
-askConquer(Conquer) :-
-    repeat,
-    write('Conquer? (Y/N) '),
-    read(X),
-    conquer(X, Conquer), !.
-
-askMove(Size, X, Y, Dir, Conquer) :-
-    askNumber('Please input X: ', 0, Size, X),
-    askNumber('Please input Y: ', 0, Size, Y),
-    askDir(Dir),
-    askConquer(Conquer).
-
-gameCycle(Board/_, _Size) :-
-    end_game(Board, PlayerYes), !,
+gameCycle(Board/_/_/_, _Size) :-
+    end_game(Board, Player), !,
     drawGame(Board),
-    format("~s~a~s", ["\nWinner is ", PlayerYes, "!\n\n"]).
-gameCycle(Board/Player, Size) :-
-    display_game(Board/Player),
+    format("~s~a~s", ["\nWinner is ", Player, "!\n\n"]).
+
+gameCycle(GameState/Player1/Player2, Size) :-
+    display_game(GameState),
     (
         repeat,
-        askMove(Size, X, Y, Dir, Conquer),
-        (move(Board/Player, X/Y/Dir/Conquer, NewBoard/Next) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
+        choose_move(GameState, Player1, Move),
+        (move(GameState, Move, NextState) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
     ),
-    gameCycle(NewBoard/Next, Size).
+    gameCycle(NextState/Player2/Player1, Size).
 
 handleOption(1) :-
     drawConfig,
     askConfig(Size, FirstPlayer),
     drawEndSection,
     generateBoard(Size, Board),
-    gameCycle(Board/FirstPlayer, Size).
-handleOption(2).
+    gameCycle(Board/FirstPlayer/human/human, Size).
+handleOption(2) :-
+    drawConfig,
+    askConfig(Size, FirstPlayer),
+    askDifficulty(Type),
+    askFirst(First, Second, Type),
+    drawEndSection,
+    generateBoard(Size, Board),
+    gameCycle(Board/FirstPlayer/First/Second, Size).
+handleOption(3) :-
+    drawConfig,
+    askConfig(Size, FirstPlayer),
+    format("~s~a~s", ["Configure ", FirstPlayer, " AI\n"]),
+    askDifficulty(FirstType),
+    opposite(FirstPlayer, SecondPlayer),
+    format("~s~a~s", ["Configure ", SecondPlayer, " AI\n"]),
+    askDifficulty(SecondType),
+    drawEndSection,
+    generateBoard(Size, Board),
+    gameCycle(Board/FirstPlayer/FirstType/SecondType, Size).
 
-handleOption(3).
 handleOption(_) :- fail.
 
 play :-

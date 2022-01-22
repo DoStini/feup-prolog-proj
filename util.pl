@@ -7,7 +7,6 @@ replace([_Elem | Rem], X, Value, Result, AccRes, X) :-
     ElemList = [Value],
     append(AccRes, ElemList, NewRes),
     append(NewRes, Rem, Result).
-    
 
 replace([Elem | Rem], X, Value, Result, AccRes, AccX) :-
     NewX is AccX + 1,
