@@ -27,7 +27,7 @@ handleOption(1) :-
     drawConfig,
     askConfig(Size, FirstPlayer),
     drawEndSection,
-    generateBoard(Size, Board),
+    generate_board(Size, Board),
     gameCycle(Board/Size/FirstPlayer/human/human).
 handleOption(2) :-
     drawConfig,
@@ -35,7 +35,7 @@ handleOption(2) :-
     askDifficulty(Type),
     askFirst(First, Second, Type),
     drawEndSection,
-    generateBoard(Size, Board),
+    generate_board(Size, Board),
     gameCycle(Board/Size/FirstPlayer/First/Second).
 handleOption(3) :-
     drawConfig,
@@ -46,7 +46,7 @@ handleOption(3) :-
     format("~s~a~s", ["Configure ", SecondPlayer, " AI\n"]),
     askDifficulty(SecondType),
     drawEndSection,
-    generateBoard(Size, Board),
+    generate_board(Size, Board),
     gameCycle(Board/Size/FirstPlayer/FirstType/SecondType).
 
 play :-

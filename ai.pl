@@ -22,6 +22,6 @@ choose_move(smart, Board/Size/Player, Moves, Move):-
     nl.
 
 test_choose(Move) :-
-    generateBoard(5, Board),
+    generate_board(5, Board),
     valid_moves(Board/red, Moves),
     choose_move(human, Board, Moves, Move).
