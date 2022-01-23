@@ -16,7 +16,11 @@ After installing **SICSTUS** Linux version, we can notice it is very buggy and u
 
 ### Running the game
 
-After initializing **sicstus**, we need to load the game using `[main].` and then start the game using `play.`.
+After initializing **SICSTUS**, we need to load the game using `[main].` and then start the game using `play.`.
+
+### Windows alternative
+
+After opening **SICSTUS**, select File > consult > main.pl. You can then run `play.`
 
 ## Game Description
 
