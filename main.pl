@@ -3,57 +3,69 @@
 :- [ai].
 :- [input].
 
-gameCycle(Board/_/_/_, _Size) :-
+%% initial_state(+Size, +Player, -GameState) is det.
+%
+%  Returns the initial GameState given a size and the first Player color
+%
+%  @param Size The size of the board
+%  @param Player The color of the first player.
+%  @param GameState The initial game state.
+%
+initial_state(Size, Player, GameState) :-
+    generate_board(Size, Board),
+    GameState = Board/Size/Player.
+
+%% game_cycle(+GameState/Current)
+game_cycle(Board/_/_/_/_) :-
     end_game(Board, Player), !,
-    drawGame(Board),
-    format("~s~a~s", ["\nWinner is ", Player, "!\n\n"]).
-gameCycle(Board/Player/CurPlayerType/NextPlayerType, Size) :-
-    valid_moves(Board/Player, List),
+    draw_game(Board),
+    format("~s~a~s", ["\nWinner is ", Player, "!\n\n"]),
+    play.
+game_cycle(Board/Size/Player/CurPlayerType/NextPlayerType) :-
+    valid_moves(Board/Size/Player, List),
     length(List, MoveNo),
     MoveNo =:= 0, !,
-    noMoves(Board/Player),
+    no_moves(Board/Size/Player),
     opposite(Player, NextPlayer),
-    gameCycle(Board/NextPlayer/NextPlayerType/CurPlayerType, Size).
-gameCycle(GameState/CurPlayerType/NextPlayerType, Size) :-
+    game_cycle(Board/Size/NextPlayer/NextPlayerType/CurPlayerType).
+game_cycle(GameState/CurPlayerType/NextPlayerType) :-
     display_game(GameState),
     (
         repeat,
         choose_move(GameState, CurPlayerType, Move),
         (move(GameState, Move, NextState) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
     ),
-    gameCycle(NextState/NextPlayerType/CurPlayerType, Size).
+    game_cycle(NextState/NextPlayerType/CurPlayerType).
 
-handleOption(1) :-
+handle_option(1) :-
     drawConfig,
     askConfig(Size, FirstPlayer),
     drawEndSection,
-    generateBoard(Size, Board),
-    gameCycle(Board/FirstPlayer/human/human, Size).
-handleOption(2) :-
-    drawConfig,
-    askConfig(Size, FirstPlayer),
-    askDifficulty(Type),
-    askFirst(First, Second, Type),
-    drawEndSection,
-    generateBoard(Size, Board),
-    gameCycle(Board/FirstPlayer/First/Second, Size).
-handleOption(3) :-
-    drawConfig,
-    askConfig(Size, FirstPlayer),
+    initial_state(Size, FirstPlayer, GameState),
+    game_cycle(GameState/human/human).
+handle_option(2) :-
+    draw_config,
+    ask_config(Size, FirstPlayer),
+    ask_difficulty(Type),
+    ask_first(First, Second, Type),
+    draw_end_section,
+    initial_state(Size, FirstPlayer, GameState),
+    game_cycle(GameState/First/Second).
+handle_option(3) :-
+    draw_config,
+    ask_config(Size, FirstPlayer),
     format("~s~a~s", ["Configure ", FirstPlayer, " AI\n"]),
-    askDifficulty(FirstType),
+    ask_difficulty(FirstType),
     opposite(FirstPlayer, SecondPlayer),
     format("~s~a~s", ["Configure ", SecondPlayer, " AI\n"]),
-    askDifficulty(SecondType),
-    drawEndSection,
-    generateBoard(Size, Board),
-    gameCycle(Board/FirstPlayer/FirstType/SecondType, Size).
-
-handleOption(_) :- fail.
+    ask_difficulty(SecondType),
+    draw_end_section,
+    initial_state(Size, FirstPlayer, GameState),
+    game_cycle(GameState/FirstType/SecondType).
 
 play :-
-    drawMenu,
+    draw_menu,
     repeat,
     format("~s", ["Please choose an option: "]),
     read(Option),
-    handleOption(Option), !.
+    handle_option(Option), !.

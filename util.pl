@@ -1,3 +1,12 @@
+%% replace(+List, +X, +Value, -Result) is det.
+%
+%  Replaces a value in a list at the X index.
+%
+%  @param List The list.
+%  @param X The index where Value will be placed.
+%  @param Value The Value to be placed at the X index.
+%  @param Result The resulting list.
+%
 replace(List, X, Value, Result) :-
     replace(List, X, Value, Result, [], 0).
 

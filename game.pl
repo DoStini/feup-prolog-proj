@@ -1,40 +1,20 @@
 :- use_module(library(lists)).
+:- use_module(library(between)).
 :- [util].
 
 opposite(red,  blue).
 opposite(blue, red).
 
-getDir(up, 0/(-1)).
-getDir(up_right, 1/(-1)).
-getDir(right, 1/0).
-getDir(down_right, 1/1).
-getDir(down, 0/1).
-getDir(down_left, (-1)/1).
-getDir(left, (-1)/0).
-getDir(up_left, (-1)/(-1)).
+dir_vector(up, 0/(-1)).
+dir_vector(up_right, 1/(-1)).
+dir_vector(right, 1/0).
+dir_vector(down_right, 1/1).
+dir_vector(down, 0/1).
+dir_vector(down_left, (-1)/1).
+dir_vector(left, (-1)/0).
+dir_vector(up_left, (-1)/(-1)).
 
-testMultiple(T, Goal, Times) :- testMultiple(T, Goal, 0, 0, Times).
-
-testMultiple(T, _G, Acc, Times, Times) :- T is Acc div Times, !.
-testMultiple(T, Goal, Acc, AccTime, Times) :-
-    AccTime < Times,
-    test(T2, Goal),
-    T1 is Acc + T2,
-    Acc1 is AccTime +  1,
-    testMultiple(T, Goal, T1, Acc1, Times).
-
-testMultipleBounds(T, Size, Times) :-
-    generateBoard(Size, B),
-    S is Size - 1,
-    testMultiple(T, checkBounds(B, S/S), Times).
-
-test(T, Goal) :-
-    statistics(walltime,[Start,_]),
-    Goal,
-    statistics(walltime,[Stop,_]),
-    T is Stop - Start.
-
-%% generateLine(+Size, +Color, -NewLine) is det.
+%% generate_line(+Size, +Color, -NewLine) is det.
 %
 %  Gets a board row with length equal to the Size given and with alternating colors, 
 %  starting with the color given.
@@ -43,38 +23,38 @@ test(T, Goal) :-
 %  @param Color The starting color of the line.
 %  @param NewLine The created line.
 %
-generateLine(Size, Color, NewLine) :- generateLine(Size, Color, NewLine, 0, []).
+generate_line(Size, Color, NewLine) :- generate_line(Size, Color, NewLine, 0, []).
 
-generateLine(Size, _Color, NewLine, Size, NewLine) :- !.
-generateLine(Size, Color, NewLine, Acc, Prev) :-
+generate_line(Size, _Color, NewLine, Size, NewLine) :- !.
+generate_line(Size, Color, NewLine, Acc, Prev) :-
     Acc < Size,
     Elem = [Color],
     append(Prev, Elem, Combined),
     NextAcc is Acc + 1,
     opposite(Color, Opposite),
-    generateLine(Size, Opposite, NewLine, NextAcc, Combined).
+    generate_line(Size, Opposite, NewLine, NextAcc, Combined).
 
-%% generateBoard(+Size, -Board) is det.
+%% generate_board(+Size, -Board) is det.
 %
 %  Gets a square board with length equal to the size given.
 %
 %  @param Size The length and height of the board.
 %  @param Board The resulting board.
 %
-generateBoard(Size, Board) :-
-    generateBoard(Size, Board, blue, 0, []).
+generate_board(Size, Board) :-
+    generate_board(Size, Board, blue, 0, []).
 
-generateBoard(Size, Board, _Color, Size, Board) :- !.
-generateBoard(Size, Board, Color, Acc, Prev) :-
+generate_board(Size, Board, _Color, Size, Board) :- !.
+generate_board(Size, Board, Color, Acc, Prev) :-
     Size > Acc,
-    generateLine(Size, Color, Line),
+    generate_line(Size, Color, Line),
     Elem = [Line],
     append(Prev, Elem, Combined),
     NextAcc is Acc + 1,
     opposite(Color, OppositeColor),
-    generateBoard(Size, Board, OppositeColor, NextAcc, Combined).
+    generate_board(Size, Board, OppositeColor, NextAcc, Combined).
 
-%% boardCenter(+Board, ?Resx/?ResY) is det.
+%% board_center(+Board, ?Resx/?ResY) is det.
 %
 %  Gets the center position of a given Board.
 %  True if the position given is at the center of the board.
@@ -82,13 +62,13 @@ generateBoard(Size, Board, Color, Acc, Prev) :-
 %  @param Board The board.
 %  @param ResX/ResY The center of the board.
 %
-boardCenter(Board, ResX/ResY) :-
+board_center(Board, ResX/ResY) :-
     length(Board, C),
     X is (C - 1) / 2,
     ResX is X,
     ResY is X.
 
-%% distSqr(+P1x/+P1y, +P2x/+P2y, -Res) is det.
+%% dist_sqr(+P1x/+P1y, +P2x/+P2y, -Res) is det.
 %
 %  Gets the squared distance between two given positions
 %
@@ -96,10 +76,10 @@ boardCenter(Board, ResX/ResY) :-
 %  @param P2x/P2y The second position.
 %  @param Res The squared distance.
 %
-distSqr(P1x/P1y, P2x/P2y, Res) :-
+dist_sqr(P1x/P1y, P2x/P2y, Res) :-
     Res is (P2y - P1y) ** 2 + (P2x - P1x) ** 2.
 
-%% distInc(+Board, +CurrX/CurrY, +Tx/+Ty) is det.
+%% dist_inc(+Board, +CurrX/CurrY, +Tx/+Ty) is det.
 %
 %  Checks if the distance to the center increases from one position to the other.
 %  True if target position is farther from the center than the current position.
@@ -108,63 +88,53 @@ distSqr(P1x/P1y, P2x/P2y, Res) :-
 %  @param CurrX/Curry The current position.
 %  @param Tx/Ty The target position.
 %
-distInc(Board, CurrX/CurrY, Tx/Ty) :- 
-    boardCenter(Board, Cx/Cy),
-    distSqr(CurrX/CurrY, Cx/Cy, Current),
-    distSqr(Tx/Ty, Cx/Cy, Target),
+dist_inc(Board, CurrX/CurrY, Tx/Ty) :- 
+    board_center(Board, Cx/Cy),
+    dist_sqr(CurrX/CurrY, Cx/Cy, Current),
+    dist_sqr(Tx/Ty, Cx/Cy, Target),
     Target > Current.
 
-%% checkBounds(+Board, ?X/?Y) is nondet. %1
-%% checkBounds(+Board, +X/+Y) is det.    %2
+%% check_bounds(+Size, -X/-Y) is nondet. %1
+%% check_bounds(+Size, +X/+Y) is det.    %2
 %
 %  %1. Gets all positions of the Board given X or Y or neither.
 %  %2. Checks if the given position is in the board, if so returns true.
 %
-%  @param Board The game board.
+%  @param Size The game board size.
 %  @param X/Y The position in the game board.
 %
-checkBounds(Board, X/Y) :-
-    checkBounds(Board, X/Y,X/0).
+check_bounds(Size, X/Y) :-
+    Max is Size - 1,
+    between(0, Max, Y),
+    between(0, Max, X).
 
-checkBounds([Line|_], X/Y,X/Y) :-
-    checkLine(Line, X, 0).
-checkBounds([_|Board], X/Y, X/AccY) :-
-    NextY is AccY + 1,
-    checkBounds(Board, X/Y, X/NextY).
-
-checkLine([_|_], X, X).
-checkLine([_|Line], X, AccX) :-
-    NextX is AccX + 1,
-    checkLine(Line, X, NextX).
-
-%% verifyPlayerCell(+Board, ?Player, ?X/?Y) is nondet. % 1
-%% verifyPlayerCell(+Board, ?Player, +X/+Y) is det.    % 2
-%% verifyPlayerCell(+Board, +Player, +X/+Y) is det.    % 3
+%% cell_player(+Board/+Size/?Player, ?X/?Y) is nondet. % 1
+%% cell_player(+Board/+Size/?Player, +X/+Y) is det.    % 2
+%% cell_player(+Board/+Size/+Player, +X/+Y) is det.    % 3
 %
 %  %1. Gets all positions and the respective player colors.
 %  %2. Gets the player color at the given position.
 %  %3. True if Player color is at the given position.
 %
 %  @param Board The game board.
+%  @param Size The game board size.
 %  @param Player The player color.
 %  @param X/Y The position in the board.
 %
-verifyPlayerCell(Board/Player, X/Y) :-
-    checkBounds(Board, X/Y),
+cell_player(Board/Size/Player, X/Y) :-
+    check_bounds(Size, X/Y),
     nth0(Y, Board, Line),
     nth0(X, Line, Player).
 
-%% verifyEmpty(+Board, ?X/?Y) is nondet. % 1
-%% verifyEmpty(+Board, +X/+Y) is det.    % 2
+%% cell_empty(+GameState, +X/+Y) is det.
 %
-%  %1. Gets all empty positions.
-%  %2. True if the given position is empty.
+%  True if the given position is empty.
 %
 %  @param Board The game board.
 %  @param X/Y The position in the board.
 %
-verifyEmpty(Board, X/Y) :-
-    checkBounds(Board, X/Y),
+cell_empty(Board/Size/_, X/Y) :-
+    check_bounds(Size, X/Y),
     nth0(Y, Board, Line),
     nth0(X, Line, empty).
 
@@ -184,6 +154,62 @@ end_game(Player,_Blue,0) :-
 end_game(Player,0,_Red) :-
     Player = red, !.
 
+%% value(+GameState, -Value) is det.
+%
+%  Calculates the negated advantage a player has.
+%
+%  @param GameState The game state Board/Size/Player
+%  @param Value The negated advantage
+%
+value(Board/Size/Player, Value) :-
+    color_diff(Board, Player, Acc),
+    opposite(Player, Opposite),
+    valid_moves(Board/Size/Player, PlayerMoves),
+    valid_moves(Board/Size/Opposite, OppositeMoves),
+    num_conquer_moves(PlayerMoves, PlayerConquer, PlayerNonConquer),
+    num_conquer_moves(OppositeMoves, OppositeConquer, OppositeNonConquer),
+    TotalPlayer is (Size * Size) / 2 * 6,
+    ConquerPoints is PlayerConquer / TotalPlayer,
+    NonConquerPoints is PlayerNonConquer / TotalPlayer,
+    OppositeConquerPoints is OppositeConquer / TotalPlayer,
+    OppositeNonConquerPoints is OppositeNonConquer / TotalPlayer,
+    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.1 - OppositeConquerPoints * 2 - OppositeNonConquerPoints * 0.3).
+
+%% num_conquer_moves(+Moves, -Conquer, -NonConquer) is det.
+%
+%  Gets the number of conquering and non-conquering moves from a list of valid moves
+%
+%  @param Moves is a list of Moves (Px/Py/Dir/Conquer)
+%  @param Conquer is the number of conquering moves
+%  @param NonConquer is the number of non-conquering moves
+%
+num_conquer_moves(Moves, Conquer, NonConquer) :-
+    num_conquer_moves(Moves, Conquer, NonConquer, 0, 0).
+
+num_conquer_moves([], Conquer, NonConquer, Conquer, NonConquer) :- !.
+num_conquer_moves([_/_/_/true|Moves], Conquer, NonConquer, ConquerAcc, NonConquerAcc) :-
+    NewConquer is ConquerAcc + 1,
+    num_conquer_moves(Moves, Conquer, NonConquer, NewConquer, NonConquerAcc).
+num_conquer_moves([_/_/_/false|Moves], Conquer, NonConquer, ConquerAcc, NonConquerAcc) :-
+    NewNonConquer is NonConquerAcc + 1,
+    num_conquer_moves(Moves, Conquer, NonConquer, ConquerAcc, NewNonConquer).
+
+%% color_diff(+Board, +Player, -Value) is det.
+%
+%  Gets the difference of player pieces in relation to the given player.
+%
+%  @param Board The game board.
+%  @param Player The color of the player being evaluated.
+%  @param Value The number of Player - OtherPlayer pieces.
+%
+color_diff(Board, red, Value) :-
+    colors_board(Board, Blue, Red),
+    Value is Red - Blue.
+
+color_diff(Board, blue, Value) :-
+    colors_board(Board, Blue, Red),
+    Value is Blue - Red.
+
 %% colors_board(+Board, -Blue, -Red) is det.
 %
 %  Gets the number of pieces in the board of each color.
@@ -201,52 +227,6 @@ colors_board([Line|Board], Blue, Red, BSum, RSum) :-
     BSum1 is BSum + B,
     RSum1 is RSum + R,
     colors_board(Board, Blue, Red, BSum1, RSum1).
-
-safe_div(_, 0, 0) :- !.
-safe_div(Num, Div, Res) :-
-    Res is Num / Div, !.
-
-%% value(+Board, +Player, -Value) is det.
-%
-%  Calculates the negated advantage a player has.
-%
-%  @param Board The game board.
-%  @param Player The one playing
-%  @param Value The negated advantage
-%
-value(Board, Player, Value) :-
-    color_diff(Board, Player, Acc),
-    opposite(Player, Opposite),
-    valid_moves(Board/Player, PlayerMoves),
-    valid_moves(Board/Opposite, OppositeMoves),
-    conquerLength(PlayerMoves, PlayerConquer, PlayerNonConquer),
-    conquerLength(OppositeMoves, OppositeConquer, OppositeNonConquer),
-    TotalPlayer is PlayerNonConquer + PlayerConquer,
-    TotalOpposite is OppositeNonConquer + OppositeConquer,
-    safe_div(TotalPlayer, PlayerConquer, ConquerPoints),
-    safe_div(TotalPlayer, PlayerNonConquer, NonConquerPoints),
-    safe_div(TotalOpposite, OppositeConquer, OppositeConquerPoints),
-    safe_div(TotalOpposite, OppositeNonConquer, OppositeNonConquerPoints),
-    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.5 - OppositeConquerPoints * 1.5 - OppositeNonConquerPoints * 0.9).
-
-conquerLength(Moves, Conquer, NonConquer) :-
-    conquerLength(Moves, Conquer, NonConquer, 0, 0).
-
-conquerLength([], Conquer, NonConquer, Conquer, NonConquer) :- !.
-conquerLength([_/_/_/true|Moves], Conquer, NonConquer, ConquerAcc, NonConquerAcc) :-
-    NewConquer is ConquerAcc + 1,
-    conquerLength(Moves, Conquer, NonConquer, NewConquer, NonConquerAcc).
-conquerLength([_/_/_/false|Moves], Conquer, NonConquer, ConquerAcc, NonConquerAcc) :-
-    NewNonConquer is NonConquerAcc + 1,
-    conquerLength(Moves, Conquer, NonConquer, ConquerAcc, NewNonConquer).
-
-color_diff(Board, red, Value) :-
-    colors_board(Board, Blue, Red),
-    Value is Red - Blue.
-
-color_diff(Board, blue, Value) :-
-    colors_board(Board, Blue, Red),
-    Value is Blue - Red.
 
 %% colors_line(+Line, -Blue, -Red) is det.
 %
@@ -268,53 +248,97 @@ colors_line([red|Line], Blue, Red, BSum, RSum) :-
 colors_line([_|Line], Blue, Red, BSum, RSum) :-
     colors_line(Line, Blue, Red, BSum, RSum).
 
-%% valid_moves(+Board/+Player, -ListOfMoves) is det.
+%% valid_moves(+GameState, -ListOfMoves) is det.
 %  
 %  Gets a list of valid moves for a given game state.
 %
-valid_moves(Board/Player, ListOfMoves) :-
-    findall(Px/Py/Dir/Conquer, can_move(Board/Player, Px/Py/Dir/Conquer, _), ListOfMoves).
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param ListOfMoves The list of valid moves.
+%
+valid_moves(Board/Size/Player, ListOfMoves) :-
+    findall(Px/Py/Dir/Conquer, ( can_move(Board/Size/Player, Px/Py/Dir/Conquer, _)), ListOfMoves).
 
-%% can_move(+Board, ?Player, ?Px/?Py, )
-can_move(Board/Player, Px/Py/Dir/Conquer, TargetX/TargetY) :-
-    verifyPlayerCell(Board/Player, Px/Py),
-    move_inner(Board/Player, Px/Py/Dir/Conquer, TargetX/TargetY).
-
-/** Non capturing move */
-move_inner(Board/_Player, Px/Py/Dir/false, TargetX/TargetY) :-
-    getDir(Dir, DirX/DirY),
+%% can_move(+GameState, +Move, ?TargetX/?TargetY) is det. %1
+%% can_move(+GameState, -Move, -TargetX/-TargetY) is nondet. %2
+%  
+%  %1. Checks if the given move is valid, and returns the ending position.
+%  %2. Returns a possible move, given the game state.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param TargetX/TargetY The ending position.
+%
+can_move(Board/Size/Player, Px/Py/Dir/Conquer, TargetX/TargetY) :-
+    cell_player(Board/Size/Player, Px/Py),
+    dir_vector(Dir, DirX/DirY),
     NewX is Px + DirX,
     NewY is Py + DirY,
-    verifyEmpty(Board, NewX/NewY),
-    distInc(Board, Px/Py, NewX/NewY),
-    TargetX is NewX,
-    TargetY is NewY.
+    can_move(Board/Size/Player, Px/Py/DirX/DirY/Conquer, TargetX/TargetY, NewX/NewY).
 
-/** Capturing move */
-move_inner(Board/Player, Px/Py/Dir/true, TargetX/TargetY) :- 
-    move_inner(Board/Player, Px/Py/Dir/true, Px/Py, TargetX/TargetY).
+can_move(Board/Size/Player, Px/Py/DirX/DirY/false, TargetX/TargetY, AccX/AccY) :-
+    can_move_non_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, AccX/AccY), !.
+can_move(Board/Size/Player, Px/Py/DirX/DirY/true, TargetX/TargetY, AccX/AccY) :-
+    can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, AccX/AccY), !.
 
-move_inner(Board/Player, Px/Py/Dir/true, PrevX/PrevY, TargetX/TargetY) :-
-    getDir(Dir, DirX/DirY),
+%% can_move_non_conquer(+GameState, +Move, -TargetX/-TargetY, +AccX/+AccY) is det.
+%  
+%  Checks if the given move is non conquering and returns the ending position.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param TargetX/TargetY The ending position.
+%  @param AccX/AccY The current position.
+%
+can_move_non_conquer(Board/Size/Player, Px/Py/_/_, AccX/AccY, AccX/AccY) :-
+    cell_empty(Board/Size/Player, AccX/AccY),
+    dist_inc(Board, Px/Py, AccX/AccY).
+
+%% can_move_conquer(+GameState, +Move, -TargetX/-TargetY, +PrevX/+PrevY) is det.
+%  
+%  Checks if the given move is conquering and returns the ending position.
+%  Iterates through the board in the given direction until a cell isn't empty or
+%  an enemy cell has been encountered.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param TargetX/TargetY The ending position.
+%  @param PrevX/PrevY The current position.
+%
+can_move_conquer(Board/Size/Player, Px/Py/_/_, NewX/NewY, NewX/NewY) :-
+    opposite(Player, Enemy),
+    cell_player(Board/Size/Enemy, NewX/NewY),
+    \+ dist_inc(Board, Px/Py, NewX/NewY), !.
+can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, PrevX/PrevY) :-
+    cell_empty(Board/Size/Player, PrevX/PrevY),
     NewX is PrevX + DirX,
     NewY is PrevY + DirY,
-    move_conquer(Board/Player, Px/Py/Dir, NewX/NewY, TargetX/TargetY).
+    can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, NewX/NewY).
 
-move_conquer(Board/Player, Px/Py/_Dir, NewX/NewY, NewX/NewY) :-
-    opposite(Player, Enemy),
-    verifyPlayerCell(Board/Enemy, NewX/NewY),
-    \+ distInc(Board, Px/Py, NewX/NewY).
-
-move_conquer(Board/Player, Px/Py/Dir, NewX/NewY, TargetX/TargetY) :-
-    verifyEmpty(Board, NewX/NewY),
-    move_inner(Board/Player, Px/Py/Dir/true, NewX/NewY, TargetX/TargetY).
-
-move(Board/Player, Px/Py/Dir/Conquer, NewBoard/Next) :-
-    can_move(Board/Player, Px/Py/Dir/Conquer, TargetX/TargetY),
-    replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard),
+%% move(+GameState, +Move, -NewGameState) is det.
+%  
+%  Executes a valid move and returns a new game state.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param NewGameState The resulting game state.
+%
+move(Board/Size/Player, Px/Py/Dir/Conquer, NewBoard/Size/Next) :-
+    can_move(Board/Size/Player, Px/Py/Dir/Conquer, TargetX/TargetY),
+    replace_current(Board, Player, Px/Py, TargetX/TargetY, NewBoard),
     opposite(Player, Next).
 
-replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
+%% replace_current(+Board, +Player, +Px/+Py, +TargetX/+TargetY, -NewBoard) is det.
+%  
+%  Replaces in the board Px/Py with empty color and TargetX/TargetY with Player color.
+%  Effectively moves a Player piece from Px/Py to TargetX/TargetY.
+%
+%  @param Board The game board.
+%  @param Player The player color to replace in TargetX/TargetY
+%  @param Px/Py The position to empty.
+%  @param TargetX/TargetY The position to place Player.
+%  @param NewBoard The resulting game board.
+%
+replace_current(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
     nth0(Py, Board, CurrentLine),
     replace(CurrentLine, Px, empty, NewCurrentLine),
     replace(Board, Py, NewCurrentLine, TempBoard),
