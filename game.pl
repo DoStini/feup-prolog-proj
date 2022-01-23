@@ -204,12 +204,11 @@ value(Board/Size/Player, Value) :-
     valid_moves(Board/Size/Opposite, OppositeMoves),
     conquerLength(PlayerMoves, PlayerConquer, PlayerNonConquer),
     conquerLength(OppositeMoves, OppositeConquer, OppositeNonConquer),
-    TotalPlayer is PlayerNonConquer + PlayerConquer,
-    TotalOpposite is OppositeNonConquer + OppositeConquer,
-    safe_div(TotalPlayer, PlayerConquer, ConquerPoints),
-    safe_div(TotalPlayer, PlayerNonConquer, NonConquerPoints),
-    safe_div(TotalOpposite, OppositeConquer, OppositeConquerPoints),
-    safe_div(TotalOpposite, OppositeNonConquer, OppositeNonConquerPoints),
+    TotalPlayer is (Size * Size) / 2 * 8,
+    safe_div(PlayerConquer, TotalPlayer, ConquerPoints),
+    safe_div(PlayerNonConquer, TotalPlayer, NonConquerPoints),
+    safe_div(OppositeConquer, TotalPlayer, OppositeConquerPoints),
+    safe_div(OppositeNonConquer, TotalPlayer, OppositeNonConquerPoints),
     Value is -(Acc + ConquerPoints + NonConquerPoints * 0.5 - OppositeConquerPoints * 1.5 - OppositeNonConquerPoints * 0.9).
 
 conquerLength(Moves, Conquer, NonConquer) :-
