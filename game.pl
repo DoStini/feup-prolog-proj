@@ -148,6 +148,13 @@ cell_player(Board/Size/Player, X/Y) :-
     nth0(Y, Board, Line),
     nth0(X, Line, Player).
 
+%% cell_empty(+Board/Size/_, +X/+Y) is det.
+%
+%  True if the given position is empty.
+%
+%  @param Board The game board.
+%  @param X/Y The position in the board.
+%
 cell_empty(Board/Size/_, X/Y) :-
     value_between(Size, X/Y),
     nth0(Y, Board, Line),
@@ -170,20 +177,6 @@ verifyPlayerCell(Board/_/Player, X/Y) :-
     nth0(Y, Board, Line),
     nth0(X, Line, Player).
 
-%% verifyEmpty(+Board, ?X/?Y) is nondet. % 1
-%% verifyEmpty(+Board, +X/+Y) is det.    % 2
-%
-%  %1. Gets all empty positions.
-%  %2. True if the given position is empty.
-%
-%  @param Board The game board.
-%  @param X/Y The position in the board.
-%
-verifyEmpty(Board, X/Y) :-
-    checkBounds(Board, X/Y),
-    nth0(Y, Board, Line),
-    nth0(X, Line, empty).
-
 %% end_game(+Board, -Player) is det.
 %
 %  True if game has ended.
@@ -200,24 +193,6 @@ end_game(Player,_Blue,0) :-
 end_game(Player,0,_Red) :-
     Player = red, !.
 
-%% colors_board(+Board, -Blue, -Red) is det.
-%
-%  Gets the number of pieces in the board of each color.
-%
-%  @param Board The game board.
-%  @param Blue The number of blue pieces.
-%  @param Red The number of red pieces.
-%
-colors_board(Board, Blue, Red) :-
-    colors_board(Board, Blue, Red, 0, 0), !.
-
-colors_board([], Blue, Red, Blue, Red) :- !.
-colors_board([Line|Board], Blue, Red, BSum, RSum) :-
-    colors_line(Line, B, R, 0, 0),
-    BSum1 is BSum + B,
-    RSum1 is RSum + R,
-    colors_board(Board, Blue, Red, BSum1, RSum1).
-
 safe_div(_, 0, 0) :- !.
 safe_div(Num, Div, Res) :-
     Res is Num / Div, !.
@@ -230,11 +205,11 @@ safe_div(Num, Div, Res) :-
 %  @param Player The one playing
 %  @param Value The negated advantage
 %
-value(Board, Player, Value) :-
+value(Board/Size/Player, Value) :-
     color_diff(Board, Player, Acc),
     opposite(Player, Opposite),
-    valid_moves(Board/Player, PlayerMoves),
-    valid_moves(Board/Opposite, OppositeMoves),
+    valid_moves(Board/Size/Player, PlayerMoves),
+    valid_moves(Board/Size/Opposite, OppositeMoves),
     conquerLength(PlayerMoves, PlayerConquer, PlayerNonConquer),
     conquerLength(OppositeMoves, OppositeConquer, OppositeNonConquer),
     TotalPlayer is PlayerNonConquer + PlayerConquer,
@@ -264,6 +239,24 @@ color_diff(Board, blue, Value) :-
     colors_board(Board, Blue, Red),
     Value is Blue - Red.
 
+%% colors_board(+Board, -Blue, -Red) is det.
+%
+%  Gets the number of pieces in the board of each color.
+%
+%  @param Board The game board.
+%  @param Blue The number of blue pieces.
+%  @param Red The number of red pieces.
+%
+colors_board(Board, Blue, Red) :-
+    colors_board(Board, Blue, Red, 0, 0), !.
+
+colors_board([], Blue, Red, Blue, Red) :- !.
+colors_board([Line|Board], Blue, Red, BSum, RSum) :-
+    colors_line(Line, B, R, 0, 0),
+    BSum1 is BSum + B,
+    RSum1 is RSum + R,
+    colors_board(Board, Blue, Red, BSum1, RSum1).
+
 %% colors_line(+Line, -Blue, -Red) is det.
 %
 %  Gets the number of pieces in a board row of each color.
@@ -289,19 +282,19 @@ colors_line([_|Line], Blue, Red, BSum, RSum) :-
 %  Gets a list of valid moves for a given game state.
 %
 valid_moves(Board/Size/Player, ListOfMoves) :-
-    findall(Px/Py/Dir, ( verifyPlayerCell(Board/Size/Player, Px/Py), can_move(Board/Size/Player, Px/Py/Dir, _)), ListOfMoves).
+    findall(Px/Py/Dir/Conquer, ( verifyPlayerCell(Board/Size/Player, Px/Py), can_move(Board/Size/Player, Px/Py/Dir/Conquer, _)), ListOfMoves).
 
 %% can_move(+Board, ?Player, ?Px/?Py, )
-can_move(Board/Size/Player, Px/Py/Dir, TargetX/TargetY) :-
+can_move(Board/Size/Player, Px/Py/Dir/Conquer, TargetX/TargetY) :-
     cell_player(Board/Size/Player, Px/Py),
     getDir(Dir, DirX/DirY),
     NewX is Px + DirX,
     NewY is Py + DirY,
-    can_move(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, NewX/NewY).
+    can_move(Board/Size/Player, Px/Py/DirX/DirY/Conquer, TargetX/TargetY, NewX/NewY).
 
-can_move(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, AccX/AccY) :-
+can_move(Board/Size/Player, Px/Py/DirX/DirY/false, TargetX/TargetY, AccX/AccY) :-
     can_move_non_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, AccX/AccY), !.
-can_move(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, AccX/AccY) :-
+can_move(Board/Size/Player, Px/Py/DirX/DirY/true, TargetX/TargetY, AccX/AccY) :-
     can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, AccX/AccY), !.
 
 can_move_non_conquer(Board/Size/Player, Px/Py/_/_, AccX/AccY, AccX/AccY) :-
@@ -318,8 +311,8 @@ can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, PrevX/Prev
     NewY is PrevY + DirY,
     can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, NewX/NewY).
 
-move(Board/Size/Player, Px/Py/Dir, NewBoard/Size/Next) :-
-    can_move(Board/Size/Player, Px/Py/Dir, TargetX/TargetY),
+move(Board/Size/Player, Px/Py/Dir/Conquer, NewBoard/Size/Next) :-
+    can_move(Board/Size/Player, Px/Py/Dir/Conquer, TargetX/TargetY),
     replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard),
     opposite(Player, Next).
 

@@ -62,7 +62,7 @@ askDir(Dir) :-
     read(X),
     dir(X, Dir), !.
 
-askMove(Size, X/Y/Dir) :-
+askMove(Size, X/Y/Dir/_) :-
     askNumber('Please input X: ', 0, Size, X),
     askNumber('Please input Y: ', 0, Size, Y),
     askDir(Dir).

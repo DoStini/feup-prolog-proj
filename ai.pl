@@ -11,11 +11,11 @@ choose_move(GameState, Type, Move):-
 choose_move(random, _GameState, Moves, Move):-
     random_member(Move, Moves).
 
-choose_move(smart, Board/_/Player, Moves, Move):-
+choose_move(smart, Board/Size/Player, Moves, Move):-
     setof(Value-Mv, NewBoard^( 
         member(Mv, Moves),
-        move(Board/Player, Move, NewBoard/_),
-        value(NewBoard, Player, Value) 
+        move(Board/Size/Player, Mv, NewBoard/_/_),
+        value(NewBoard/Size/Player, Value) 
     ), [_V-Move|_]),
     format("~s~a~s", ["AI ", Player, " moved "]),
     write(Move),
