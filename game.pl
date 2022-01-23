@@ -288,10 +288,10 @@ can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, PrevX/Prev
 
 move(Board/Size/Player, Px/Py/Dir/Conquer, NewBoard/Size/Next) :-
     can_move(Board/Size/Player, Px/Py/Dir/Conquer, TargetX/TargetY),
-    replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard),
+    replace_current(Board, Player, Px/Py, TargetX/TargetY, NewBoard),
     opposite(Player, Next).
 
-replaceCurrent(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
+replace_current(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
     nth0(Py, Board, CurrentLine),
     replace(CurrentLine, Px, empty, NewCurrentLine),
     replace(Board, Py, NewCurrentLine, TempBoard),

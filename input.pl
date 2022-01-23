@@ -17,7 +17,7 @@ dir('up_left', up_left).
 conquer('y', true).
 conquer('n', false).
 
-askNumber(Text, Min, Max, Number) :-
+ask_number(Text, Min, Max, Number) :-
     repeat,
     write(Text),
     read(X),
@@ -26,43 +26,43 @@ askNumber(Text, Min, Max, Number) :-
     X < Max,
     Number = X, !.
 
-askDifficulty(Type):-
+ask_difficulty(Type):-
     repeat,
     format("~s", ["Choose the AI difficulty:\n 1. Random\n 2. Smart\n"]),
     read(Option),
-    askDifficulty(Type, Option), !.
+    ask_difficulty(Type, Option), !.
 
-askDifficulty(random, 1).
-askDifficulty(smart, 2).
-askDifficulty(_, _) :- fail.
+ask_difficulty(random, 1).
+ask_difficulty(smart, 2).
+ask_difficulty(_, _) :- fail.
 
-askFirst(First, Second, Type) :-
+ask_first(First, Second, Type) :-
     repeat,
     format("~s", ["Who goes first\n 1. Player\n 2. AI\n"]),
     read(Option),
-    askFirst(First, Second, Type, Option), !.
+    ask_first(First, Second, Type, Option), !.
 
-askFirst(human, Type, Type, 1).
-askFirst(Type, human, Type, 2).
+ask_first(human, Type, Type, 1).
+ask_first(Type, human, Type, 2).
 
 
-askPlayer(Player) :-
+ask_player(Player) :-
     repeat,
     write('Please input initial player: (red/blue) '),
     read(X),
     player(X, Player), !.
 
-askConfig(Size, FirstPlayer) :-
-    askNumber('Please input Size: ', 1, 1000000, Size),
-    askPlayer(FirstPlayer).
+ask_config(Size, FirstPlayer) :-
+    ask_number('Please input Size: ', 1, 1000000, Size),
+    ask_player(FirstPlayer).
 
-askDir(Dir) :-
+ask_dir(Dir) :-
     repeat,
     write('Please input direction: '),
     read(X),
     dir(X, Dir), !.
 
 askMove(Size, X/Y/Dir/_) :-
-    askNumber('Please input X: ', 0, Size, X),
-    askNumber('Please input Y: ', 0, Size, Y),
-    askDir(Dir).
+    ask_number('Please input X: ', 0, Size, X),
+    ask_number('Please input Y: ', 0, Size, Y),
+    ask_dir(Dir).
