@@ -4,7 +4,7 @@ playerChar(red, 'X').
 playerChar(blue, 'O').
 playerChar(empty, ' ').
 
-noMoves(Board/Player) :-
+noMoves(Board/_/Player) :-
     nl,
     playerChar(Player, Char),
     drawGame(Board),
@@ -77,7 +77,7 @@ drawBoard([Line | RemBoard], LineNo) :-
     LineNext is LineNo + 1,
     drawBoard(RemBoard, LineNext).
 
-display_game(Board/Player) :-
+display_game(Board/_/Player) :-
     nl,
     playerChar(Player, Char),
     drawGame(Board),

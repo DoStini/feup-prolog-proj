@@ -3,32 +3,32 @@
 :- [ai].
 :- [input].
 
-gameCycle(Board/_/_/_, _Size) :-
+gameCycle(Board/_/_/_/_) :-
     end_game(Board, Player), !,
     drawGame(Board),
     format("~s~a~s", ["\nWinner is ", Player, "!\n\n"]).
-gameCycle(Board/Player/CurPlayerType/NextPlayerType, Size) :-
-    valid_moves(Board/Player, List),
+gameCycle(Board/Size/Player/CurPlayerType/NextPlayerType) :-
+    valid_moves(Board/Size/Player, List),
     length(List, MoveNo),
     MoveNo =:= 0, !,
-    noMoves(Board/Player),
+    noMoves(Board/Size/Player),
     opposite(Player, NextPlayer),
-    gameCycle(Board/NextPlayer/NextPlayerType/CurPlayerType, Size).
-gameCycle(GameState/CurPlayerType/NextPlayerType, Size) :-
+    gameCycle(Board/Size/NextPlayer/NextPlayerType/CurPlayerType).
+gameCycle(GameState/CurPlayerType/NextPlayerType) :-
     display_game(GameState),
     (
         repeat,
         choose_move(GameState, CurPlayerType, Move),
         (move(GameState, Move, NextState) ; (format("~s", ["!!INVALID MOVE, TRY AGAIN!!\n"]), fail))
     ),
-    gameCycle(NextState/NextPlayerType/CurPlayerType, Size).
+    gameCycle(NextState/NextPlayerType/CurPlayerType).
 
 handleOption(1) :-
     drawConfig,
     askConfig(Size, FirstPlayer),
     drawEndSection,
     generateBoard(Size, Board),
-    gameCycle(Board/FirstPlayer/human/human, Size).
+    gameCycle(Board/Size/FirstPlayer/human/human).
 handleOption(2) :-
     drawConfig,
     askConfig(Size, FirstPlayer),
@@ -36,7 +36,7 @@ handleOption(2) :-
     askFirst(First, Second, Type),
     drawEndSection,
     generateBoard(Size, Board),
-    gameCycle(Board/FirstPlayer/First/Second, Size).
+    gameCycle(Board/Size/FirstPlayer/First/Second).
 handleOption(3) :-
     drawConfig,
     askConfig(Size, FirstPlayer),
@@ -47,9 +47,7 @@ handleOption(3) :-
     askDifficulty(SecondType),
     drawEndSection,
     generateBoard(Size, Board),
-    gameCycle(Board/FirstPlayer/FirstType/SecondType, Size).
-
-handleOption(_) :- fail.
+    gameCycle(Board/Size/FirstPlayer/FirstType/SecondType).
 
 play :-
     drawMenu,

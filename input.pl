@@ -62,14 +62,7 @@ askDir(Dir) :-
     read(X),
     dir(X, Dir), !.
 
-askConquer(Conquer) :-
-    repeat,
-    write('Conquer? (Y/N) '),
-    read(X),
-    conquer(X, Conquer), !.
-
-askMove(Size, X/Y/Dir/Conquer) :-
+askMove(Size, X/Y/Dir) :-
     askNumber('Please input X: ', 0, Size, X),
     askNumber('Please input Y: ', 0, Size, Y),
-    askDir(Dir),
-    askConquer(Conquer).
+    askDir(Dir).
