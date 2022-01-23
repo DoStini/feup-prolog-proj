@@ -3,15 +3,24 @@
 :- [ai].
 :- [input].
 
+%% initial_state(+Size, +Player, -GameState) is det.
+%
+%  Returns the initial GameState given a size and the first Player color
+%
+%  @param Size The size of the board
+%  @param Player The color of the first player.
+%  @param GameState The initial game state.
+%
 initial_state(Size, Player, GameState) :-
     generate_board(Size, Board),
     GameState = Board/Size/Player.
 
+%% game_cycle(+GameState/Current)
 game_cycle(Board/_/_/_/_) :-
     end_game(Board, Player), !,
-    drawGame(Board),
-    format("~s~a~s", ["\nWinner is ", Player, "!\n\n"]).
-
+    draw_game(Board),
+    format("~s~a~s", ["\nWinner is ", Player, "!\n\n"]),
+    play.
 game_cycle(Board/Size/Player/CurPlayerType/NextPlayerType) :-
     valid_moves(Board/Size/Player, List),
     length(List, MoveNo),
@@ -19,7 +28,6 @@ game_cycle(Board/Size/Player/CurPlayerType/NextPlayerType) :-
     no_moves(Board/Size/Player),
     opposite(Player, NextPlayer),
     game_cycle(Board/Size/NextPlayer/NextPlayerType/CurPlayerType).
-
 game_cycle(GameState/CurPlayerType/NextPlayerType) :-
     display_game(GameState),
     (
@@ -34,7 +42,7 @@ handle_option(1) :-
     askConfig(Size, FirstPlayer),
     drawEndSection,
     initial_state(Size, FirstPlayer, GameState),
-    gane_cycle(GameState/human/human).
+    game_cycle(GameState/human/human).
 handle_option(2) :-
     draw_config,
     ask_config(Size, FirstPlayer),

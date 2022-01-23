@@ -173,7 +173,7 @@ value(Board/Size/Player, Value) :-
     NonConquerPoints is PlayerNonConquer / TotalPlayer,
     OppositeConquerPoints is OppositeConquer / TotalPlayer,
     OppositeNonConquerPoints is OppositeNonConquer / TotalPlayer,
-    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.15 - OppositeConquerPoints * 2 - OppositeNonConquerPoints * 0.3).
+    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.1 - OppositeConquerPoints * 2 - OppositeNonConquerPoints * 0.3).
 
 %% num_conquer_moves(+Moves, -Conquer, -NonConquer) is det.
 %
@@ -248,14 +248,26 @@ colors_line([red|Line], Blue, Red, BSum, RSum) :-
 colors_line([_|Line], Blue, Red, BSum, RSum) :-
     colors_line(Line, Blue, Red, BSum, RSum).
 
-%% valid_moves(+Board/+Player, -ListOfMoves) is det.
+%% valid_moves(+GameState, -ListOfMoves) is det.
 %  
 %  Gets a list of valid moves for a given game state.
 %
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param ListOfMoves The list of valid moves.
+%
 valid_moves(Board/Size/Player, ListOfMoves) :-
-    findall(Px/Py/Dir/Conquer, ( cell_player(Board/Size/Player, Px/Py), can_move(Board/Size/Player, Px/Py/Dir/Conquer, _)), ListOfMoves).
+    findall(Px/Py/Dir/Conquer, ( can_move(Board/Size/Player, Px/Py/Dir/Conquer, _)), ListOfMoves).
 
-%% can_move(+Board, ?Player, ?Px/?Py, )
+%% can_move(+GameState, +Move, ?TargetX/?TargetY) is det. %1
+%% can_move(+GameState, -Move, -TargetX/-TargetY) is nondet. %2
+%  
+%  %1. Checks if the given move is valid, and returns the ending position.
+%  %2. Returns a possible move, given the game state.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param TargetX/TargetY The ending position.
+%
 can_move(Board/Size/Player, Px/Py/Dir/Conquer, TargetX/TargetY) :-
     cell_player(Board/Size/Player, Px/Py),
     dir_vector(Dir, DirX/DirY),
@@ -268,10 +280,30 @@ can_move(Board/Size/Player, Px/Py/DirX/DirY/false, TargetX/TargetY, AccX/AccY) :
 can_move(Board/Size/Player, Px/Py/DirX/DirY/true, TargetX/TargetY, AccX/AccY) :-
     can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, AccX/AccY), !.
 
+%% can_move_non_conquer(+GameState, +Move, -TargetX/-TargetY, +AccX/+AccY) is det.
+%  
+%  Checks if the given move is non conquering and returns the ending position.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param TargetX/TargetY The ending position.
+%  @param AccX/AccY The current position.
+%
 can_move_non_conquer(Board/Size/Player, Px/Py/_/_, AccX/AccY, AccX/AccY) :-
     cell_empty(Board/Size/Player, AccX/AccY),
     dist_inc(Board, Px/Py, AccX/AccY).
 
+%% can_move_conquer(+GameState, +Move, -TargetX/-TargetY, +PrevX/+PrevY) is det.
+%  
+%  Checks if the given move is conquering and returns the ending position.
+%  Iterates through the board in the given direction until a cell isn't empty or
+%  an enemy cell has been encountered.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param TargetX/TargetY The ending position.
+%  @param PrevX/PrevY The current position.
+%
 can_move_conquer(Board/Size/Player, Px/Py/_/_, NewX/NewY, NewX/NewY) :-
     opposite(Player, Enemy),
     cell_player(Board/Size/Enemy, NewX/NewY),
@@ -282,11 +314,30 @@ can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, PrevX/Prev
     NewY is PrevY + DirY,
     can_move_conquer(Board/Size/Player, Px/Py/DirX/DirY, TargetX/TargetY, NewX/NewY).
 
+%% move(+GameState, +Move, -NewGameState) is det.
+%  
+%  Executes a valid move and returns a new game state.
+%
+%  @param GameState The current state of the game Board/Size/Player.
+%  @param Move The move Px/Py/Dir/Conquer.
+%  @param NewGameState The resulting game state.
+%
 move(Board/Size/Player, Px/Py/Dir/Conquer, NewBoard/Size/Next) :-
     can_move(Board/Size/Player, Px/Py/Dir/Conquer, TargetX/TargetY),
     replace_current(Board, Player, Px/Py, TargetX/TargetY, NewBoard),
     opposite(Player, Next).
 
+%% replace_current(+Board, +Player, +Px/+Py, +TargetX/+TargetY, -NewBoard) is det.
+%  
+%  Replaces in the board Px/Py with empty color and TargetX/TargetY with Player color.
+%  Effectively moves a Player piece from Px/Py to TargetX/TargetY.
+%
+%  @param Board The game board.
+%  @param Player The player color to replace in TargetX/TargetY
+%  @param Px/Py The position to empty.
+%  @param TargetX/TargetY The position to place Player.
+%  @param NewBoard The resulting game board.
+%
 replace_current(Board, Player, Px/Py, TargetX/TargetY, NewBoard) :-
     nth0(Py, Board, CurrentLine),
     replace(CurrentLine, Px, empty, NewCurrentLine),
