@@ -15,17 +15,10 @@
 choose_move(_/Size/_, human, Move) :-
     askMove(Size, Move).
 
-choose_move(Board/Size/Player, Type, Px/Py/Dir/Conquer):-
+choose_move(Board/Size/Player, Type, Move):-
     valid_moves(Board/Size/Player, Moves),
-    choose_move(Type, Board/Size/Player, Moves, Px/Py/Dir/Conquer),
-    sleep(1),
-    dir_string(Dir, DirString),
-    conquer_string(Conquer, ConquerString),
-    format("~s~a~s~d~s~d~s~s~s~s~s",
-        ["AI ", Player, " moved from (", Px, ", ", Py, ") in direction ", DirString, " and ", ConquerString, "."]
-    ),
-    nl,
-    sleep(1).
+    choose_move(Type, Board/Size/Player, Moves, Move),
+    display_ai_move(Move, Player).
 
 choose_move(random, _GameState, Moves, Move):-
     random_member(Move, Moves).

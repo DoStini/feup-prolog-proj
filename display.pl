@@ -19,6 +19,20 @@ dir_string(up_left, "UP-and-LEFT").
 conquer_string(true, "CONQUERED").
 conquer_string(false, "DIDN'T CONQUER").
 
+%% display_ai_move(+Move, +Player) is det.
+%
+%  Displays an AI move in a textual form.
+%
+display_ai_move(Px/Py/Dir/Conquer, Player) :-
+    sleep(1),
+    dir_string(Dir, DirString),
+    conquer_string(Conquer, ConquerString),
+    format("~s~a~s~d~s~d~s~s~s~s~s",
+        ["AI ", Player, " moved from (", Px, ", ", Py, ") in direction ", DirString, " and ", ConquerString, "."]
+    ),
+    nl,
+    sleep(1).
+
 %% no_moves(+GameState) is det.
 %
 %  Displays that a player has no moves.
