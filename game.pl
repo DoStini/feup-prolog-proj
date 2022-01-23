@@ -1,4 +1,5 @@
 :- use_module(library(lists)).
+:- use_module(library(between)).
 :- [util].
 
 opposite(red,  blue).
@@ -123,19 +124,10 @@ distInc(Board, CurrX/CurrY, Tx/Ty) :-
 %  @param Board The game board.
 %  @param X/Y The position in the game board.
 %
-checkBounds(Board, X/Y) :-
-    checkBounds(Board, X/Y,X/0).
-
-checkBounds([Line|_], X/Y,X/Y) :-
-    checkLine(Line, X, 0).
-checkBounds([_|Board], X/Y, X/AccY) :-
-    NextY is AccY + 1,
-    checkBounds(Board, X/Y, X/NextY).
-
-checkLine([_|_], X, X).
-checkLine([_|Line], X, AccX) :-
-    NextX is AccX + 1,
-    checkLine(Line, X, NextX).
+checkBounds(_/Size, X/Y) :-
+    Max is Size - 1,
+    between(0, Max, Y),
+    between(0, Max, X).
 
 value_between(Size, X/Y) :-
     X >= 0,
@@ -172,8 +164,8 @@ cell_empty(Board/Size/_, X/Y) :-
 %  @param Player The player color.
 %  @param X/Y The position in the board.
 %
-verifyPlayerCell(Board/_/Player, X/Y) :-
-    checkBounds(Board, X/Y),
+verifyPlayerCell(Board/Size/Player, X/Y) :-
+    checkBounds(Board/Size, X/Y),
     nth0(Y, Board, Line),
     nth0(X, Line, Player).
 
