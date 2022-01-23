@@ -209,7 +209,7 @@ value(Board/Size/Player, Value) :-
     safe_div(PlayerNonConquer, TotalPlayer, NonConquerPoints),
     safe_div(OppositeConquer, TotalPlayer, OppositeConquerPoints),
     safe_div(OppositeNonConquer, TotalPlayer, OppositeNonConquerPoints),
-    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.5 - OppositeConquerPoints * 1.5 - OppositeNonConquerPoints * 0.9).
+    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.5 - OppositeConquerPoints * 2 - OppositeNonConquerPoints).
 
 conquerLength(Moves, Conquer, NonConquer) :-
     conquerLength(Moves, Conquer, NonConquer, 0, 0).
