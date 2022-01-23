@@ -154,10 +154,6 @@ end_game(Player,_Blue,0) :-
 end_game(Player,0,_Red) :-
     Player = red, !.
 
-safe_div(_, 0, 0) :- !.
-safe_div(Num, Div, Res) :-
-    Res is Num / Div, !.
-
 %% value(+GameState, -Value) is det.
 %
 %  Calculates the negated advantage a player has.
@@ -172,12 +168,12 @@ value(Board/Size/Player, Value) :-
     valid_moves(Board/Size/Opposite, OppositeMoves),
     num_conquer_moves(PlayerMoves, PlayerConquer, PlayerNonConquer),
     num_conquer_moves(OppositeMoves, OppositeConquer, OppositeNonConquer),
-    TotalPlayer is (Size * Size) / 2 * 8,
-    safe_div(PlayerConquer, TotalPlayer, ConquerPoints),
-    safe_div(PlayerNonConquer, TotalPlayer, NonConquerPoints),
-    safe_div(OppositeConquer, TotalPlayer, OppositeConquerPoints),
-    safe_div(OppositeNonConquer, TotalPlayer, OppositeNonConquerPoints),
-    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.5 - OppositeConquerPoints * 2 - OppositeNonConquerPoints).
+    TotalPlayer is (Size * Size) / 2 * 6,
+    ConquerPoints is PlayerConquer / TotalPlayer,
+    NonConquerPoints is PlayerNonConquer / TotalPlayer,
+    OppositeConquerPoints is OppositeConquer / TotalPlayer,
+    OppositeNonConquerPoints is OppositeNonConquer / TotalPlayer,
+    Value is -(Acc + ConquerPoints + NonConquerPoints * 0.15 - OppositeConquerPoints * 2 - OppositeNonConquerPoints * 0.3).
 
 %% num_conquer_moves(+Moves, -Conquer, -NonConquer) is det.
 %

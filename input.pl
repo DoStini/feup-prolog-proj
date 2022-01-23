@@ -1,21 +1,18 @@
-player('red', red).
-player('blue', blue).
+player(red).
+player(blue).
 
 type('human').
 type('random').
 type('smart').
 
-dir('up', up).
-dir('up_right', up_right).
-dir('right', right).
-dir('down_right', down_right).
-dir('down', down).
-dir('down_left',down_left).
-dir('left', left).
-dir('up_left', up_left).
-
-conquer('y', true).
-conquer('n', false).
+dir(up).
+dir(up_right).
+dir(right).
+dir(down_right).
+dir(down).
+dir(down_left).
+dir(left).
+dir(up_left).
 
 askNumber(Text, Min, Max, Number) :-
     repeat,
@@ -49,8 +46,8 @@ askFirst(Type, human, Type, 2).
 askPlayer(Player) :-
     repeat,
     write('Please input initial player: (red/blue) '),
-    read(X),
-    player(X, Player), !.
+    read(Player),
+    player(Player), !.
 
 askConfig(Size, FirstPlayer) :-
     askNumber('Please input Size: ', 1, 1000000, Size),
@@ -59,8 +56,8 @@ askConfig(Size, FirstPlayer) :-
 askDir(Dir) :-
     repeat,
     write('Please input direction: '),
-    read(X),
-    dir(X, Dir), !.
+    read(Dir),
+    dir(Dir), !.
 
 askMove(Size, X/Y/Dir/_) :-
     askNumber('Please input X: ', 0, Size, X),
